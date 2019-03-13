@@ -14,12 +14,6 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void Start()
     {
-        if (GameObject.Find("CamPos") == null)
-        {
-            Destroy(this);
-            return;
-        }
-
         transform.position = _cameraPosition.position;
         transform.forward = _cameraPosition.forward;
     }
