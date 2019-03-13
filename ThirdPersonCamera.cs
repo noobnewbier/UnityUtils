@@ -11,8 +11,6 @@ public class ThirdPersonCamera : MonoBehaviour
 {
     [SerializeField] Transform _cameraPosition;          // the usual position for the camera, specified by a transform in the game
     [SerializeField] float _smooth = 3f;       // カメラモーションのスムーズ化用変数
-    Camera _camera;
-
 
     void Start()
     {
@@ -21,7 +19,6 @@ public class ThirdPersonCamera : MonoBehaviour
             Destroy(this);
             return;
         }
-        _camera = GetComponent<Camera>();
 
         transform.position = _cameraPosition.position;
         transform.forward = _cameraPosition.forward;
