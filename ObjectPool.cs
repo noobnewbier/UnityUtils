@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ObjectPool : MonoBehaviour
 {
-    const int POOL_SIZE = 50;
+    const int PoolSize = 50;
 
     public PooledMonoBehaviour PooledGameObject { set { _pooledMono = value; } }
 
@@ -34,7 +34,7 @@ public class ObjectPool : MonoBehaviour
 
     public void AddInstance(PooledMonoBehaviour instance)
     {
-        if (_pool.Count < POOL_SIZE)
+        if (_pool.Count < PoolSize)
         {
             _pool.Push(instance);
             instance.gameObject.SetActive(false);
