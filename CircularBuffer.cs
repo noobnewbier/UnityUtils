@@ -6,13 +6,12 @@ public interface ICircularBuffer<T>
 {
     int Count { get; }
     int Capacity { get; set; }
+    T Current { get; }
     T Enqueue(T item);
     T Dequeue();
     void Clear();
-    T this[int index] { get; set; }
-    int IndexOf(T item);
-    void Insert(int index, T item);
-    void RemoveAt(int index);
+    T MoveNext();
+    T MovePrevious();
 }
 
 public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
@@ -21,6 +20,7 @@ public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
     private T[] _buffer;
     private int _head;
     private int _tail;
+    private int _currentIndex;
 
     public CircularBuffer(int capacity)
     {
@@ -28,6 +28,12 @@ public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
             throw new ArgumentOutOfRangeException("capacity", "must be positive");
         _buffer = new T[capacity];
         _head = capacity - 1;
+    }
+
+    public CircularBuffer(T[] buffer)
+    {
+        _buffer = buffer;
+        _head = buffer.Length - 1;
     }
 
     public int Count { get; private set; }
@@ -52,6 +58,15 @@ public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
             Count = count;
             _head = count - 1;
             _tail = 0;
+        }
+    }
+
+    public T Current
+    {
+        get
+        {
+            int index = _currentIndex % Capacity;
+            return index < 0 ? _buffer[index + Capacity] : _buffer[index];
         }
     }
 
@@ -86,57 +101,17 @@ public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
         Count = 0;
     }
 
-    public T this[int index]
+ 
+    public T MoveNext()
     {
-        get
-        {
-            if (index < 0 || index >= Count)
-                throw new ArgumentOutOfRangeException("index");
-
-            return _buffer[(_tail + index) % Capacity];
-        }
-        set
-        {
-            if (index < 0 || index >= Count)
-                throw new ArgumentOutOfRangeException("index");
-
-            _buffer[(_tail + index) % Capacity] = value;
-        }
+        _currentIndex++;
+        return Current;
     }
 
-    public int IndexOf(T item)
+    public T MovePrevious()
     {
-        for (var i = 0; i < Count; ++i)
-            if (Equals(item, this[i]))
-                return i;
-        return -1;
-    }
-
-    public void Insert(int index, T item)
-    {
-        if (index < 0 || index > Count)
-            throw new ArgumentOutOfRangeException("index");
-
-        if (Count == index)
-            Enqueue(item);
-        else
-        {
-            var last = this[Count - 1];
-            for (var i = index; i < Count - 2; ++i)
-                this[i + 1] = this[i];
-            this[index] = item;
-            Enqueue(last);
-        }
-    }
-
-    public void RemoveAt(int index)
-    {
-        if (index < 0 || index >= Count)
-            throw new ArgumentOutOfRangeException("index");
-
-        for (var i = index; i > 0; --i)
-            this[i] = this[i - 1];
-        Dequeue();
+        _currentIndex--;
+        return Current;
     }
 
     public IEnumerator<T> GetEnumerator()
@@ -145,11 +120,12 @@ public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
             yield break;
 
         for (var i = 0; i < Count; ++i)
-            yield return this[i];
+            yield return _buffer[i];
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
+
 }
