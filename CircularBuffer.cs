@@ -6,6 +6,8 @@ public interface ICircularBuffer<T>
 {
     int Count { get; }
     int Capacity { get; set; }
+    bool IsBeginning { get; }
+    bool IsEnd { get; }
     T Current { get; }
     T Enqueue(T item);
     T Dequeue();
@@ -15,12 +17,11 @@ public interface ICircularBuffer<T>
 }
 
 public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
-
 {
     private T[] _buffer;
     private int _head;
     private int _tail;
-    private int _currentIndex;
+    private int _currentIndex = 0;
 
     public CircularBuffer(int capacity)
     {
@@ -61,14 +62,21 @@ public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
         }
     }
 
-    public T Current
+    public T Current => _buffer[WrappedIndex];
+
+    public bool IsBeginning => WrappedIndex == 0;
+
+    public bool IsEnd => WrappedIndex == Capacity - 1;
+
+    private int WrappedIndex
     {
         get
         {
             int index = _currentIndex % Capacity;
-            return index < 0 ? _buffer[index + Capacity] : _buffer[index];
+            return index < 0 ? index + Capacity: index;
         }
     }
+
 
     public T Enqueue(T item)
     {
@@ -101,7 +109,7 @@ public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
         Count = 0;
     }
 
- 
+
     public T MoveNext()
     {
         _currentIndex++;
