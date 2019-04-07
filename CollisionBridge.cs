@@ -12,26 +12,27 @@ public class CollisionBridge : MonoBehaviour
     {
         var collisionEnterDelegate = _delegate as ICollisionEnterDelegate;
         if (_delegate != null)
-            collisionEnterDelegate.OnCollisionEnter(collision);
+            collisionEnterDelegate.OnCollisionEnterCalled(collision);
     }
 
     private void OnTriggerExit(Collider other)
     {
         var triggerExitDelegate = _delegate as ITriggerExitDelegate;
-
         if (_delegate != null)
-            triggerExitDelegate.OnTriggerExit(other);
+        {
+            triggerExitDelegate.OnTriggerExitCalled(other);
+        }
     }
 }
 
 public interface ICollisionEnterDelegate
 {
-    void OnCollisionEnter(Collision collision);
+    void OnCollisionEnterCalled(Collision collision);
 }
 
 public interface ITriggerExitDelegate
 {
-    void OnTriggerExit(Collider other);
+    void OnTriggerExitCalled(Collider other);
 }
 
 
