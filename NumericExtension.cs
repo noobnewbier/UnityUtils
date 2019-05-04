@@ -4,7 +4,7 @@ namespace NumericExtension
 {
     public static class FloatUtil
     {
-        public static bool NearlyEqual(float a, float b, float epsilon)
+        public static bool NearlyEqual(float a, float b, float epsilon = 0.005f)
         {
             float absA = Mathf.Abs(a);
             float absB = Mathf.Abs(b);
