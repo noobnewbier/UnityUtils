@@ -1,28 +1,29 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class GameObjectFollower : MonoBehaviour
+namespace Utils
 {
-
-    [SerializeField] Transform _transformToFollow;
-    [SerializeField] float _smooth = 15f;       // カメラモーションのスムーズ化用変数
-    Vector3 _offset;
-
-
-    void Start()
+    public class GameObjectFollower : MonoBehaviour
     {
-        _offset = transform.position - _transformToFollow.position;
-    }
+
+        [SerializeField] Transform _transformToFollow;
+        [SerializeField] float _smooth = 15f;       // カメラモーションのスムーズ化用変数
+        Vector3 _offset;
 
 
-    void FixedUpdate()  // このカメラ切り替えはFixedUpdate()内でないと正常に動かない
-    {
-        SetPosition((_transformToFollow.rotation * _offset) + _transformToFollow.position);
-    }
+        void Start()
+        {
+            _offset = transform.position - _transformToFollow.position;
+        }
 
-    void SetPosition(Vector3 targetPosition)
-    {
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * _smooth);
+
+        void FixedUpdate()  // このカメラ切り替えはFixedUpdate()内でないと正常に動かない
+        {
+            SetPosition((_transformToFollow.rotation * _offset) + _transformToFollow.position);
+        }
+
+        void SetPosition(Vector3 targetPosition)
+        {
+            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * _smooth);
+        }
     }
 }

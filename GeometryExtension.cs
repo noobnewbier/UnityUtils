@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace GeometryExtesnion
+namespace Utils
 {
     public static class TransformExtension
     {

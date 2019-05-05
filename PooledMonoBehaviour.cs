@@ -1,32 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public abstract class PooledMonoBehaviour : MonoBehaviour
+namespace Utils
 {
-
-    ObjectPool _pool;
-
-    protected virtual void Awake()
+    public abstract class PooledMonoBehaviour : MonoBehaviour
     {
-        if (_pool == null)
+
+        ObjectPool _pool;
+
+        protected virtual void Awake()
         {
-            _pool = ObjectPool.GetPoolFor(this);
+            if (_pool == null)
+            {
+                _pool = ObjectPool.GetPoolFor(this);
+            }
         }
+
+        public GameObject GetPooledInstance()
+        {
+            GameObject toReturn = _pool.GetInstance();
+            toReturn.GetComponent<PooledMonoBehaviour>()._pool = _pool; //what if the same gameobject have multiple pooledObject
+
+            return toReturn;
+        }
+
+        public void ReturnToPool()
+        {
+            _pool.AddInstance(this);
+            gameObject.SetActive(false);
+        }
+
     }
-
-    public GameObject GetPooledInstance()
-    {
-        GameObject toReturn = _pool.GetInstance();
-        toReturn.GetComponent<PooledMonoBehaviour>()._pool = _pool; //what if the same gameobject have multiple pooledObject
-
-        return toReturn;
-    }
-
-    public void ReturnToPool()
-    {
-        _pool.AddInstance(this);
-        gameObject.SetActive(false);
-    }
-
 }

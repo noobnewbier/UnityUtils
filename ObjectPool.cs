@@ -1,70 +1,72 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ObjectPool : MonoBehaviour
+namespace Utils
 {
-    const int PoolSize = 50;
-
-    public PooledMonoBehaviour PooledGameObject { set { _pooledMono = value; } }
-
-    PooledMonoBehaviour _pooledMono;
-    Stack<PooledMonoBehaviour> _pool = new Stack<PooledMonoBehaviour>();
-
-
-    public T GetInstance<T>() where T : PooledMonoBehaviour
-    { 
-        return GetInstance().GetComponent<T>();
-    }
-
-    public GameObject GetInstance()
+    public class ObjectPool : MonoBehaviour
     {
-        GameObject toReturn;
-        if (!_pool.Any())
-            toReturn = Instantiate(_pooledMono.gameObject);
-        else
-            toReturn = _pool.Pop().gameObject;
+        const int PoolSize = 50;
 
-        toReturn.SetActive(true);
-        toReturn.transform.SetParent(transform);
+        public PooledMonoBehaviour PooledGameObject { set { _pooledMono = value; } }
 
-        return toReturn;
-    }
+        PooledMonoBehaviour _pooledMono;
+        Stack<PooledMonoBehaviour> _pool = new Stack<PooledMonoBehaviour>();
 
-    public void AddInstance(PooledMonoBehaviour instance)
-    {
-        if (_pool.Count < PoolSize)
-        {
-            _pool.Push(instance);
-            instance.gameObject.SetActive(false);
+
+        public T GetInstance<T>() where T : PooledMonoBehaviour
+        { 
+            return GetInstance().GetComponent<T>();
         }
-        else
-        {
-            //just discard it - we have too much of it
-            Destroy(instance.gameObject);
-        }
-    }
 
-    public static ObjectPool GetPoolFor(PooledMonoBehaviour toPool)
-    {
-        if (Application.isEditor)//if there are existing pools
+        public GameObject GetInstance()
         {
-            GameObject obj = GameObject.Find(toPool.name + "Pool");
-            if (obj)
+            GameObject toReturn;
+            if (!_pool.Any())
+                toReturn = Instantiate(_pooledMono.gameObject);
+            else
+                toReturn = _pool.Pop().gameObject;
+
+            toReturn.SetActive(true);
+            toReturn.transform.SetParent(transform);
+
+            return toReturn;
+        }
+
+        public void AddInstance(PooledMonoBehaviour instance)
+        {
+            if (_pool.Count < PoolSize)
             {
-                return obj.GetComponent<ObjectPool>();
+                _pool.Push(instance);
+                instance.gameObject.SetActive(false);
+            }
+            else
+            {
+                //just discard it - we have too much of it
+                Destroy(instance.gameObject);
             }
         }
 
-        GameObject newPool = new GameObject
+        public static ObjectPool GetPoolFor(PooledMonoBehaviour toPool)
         {
-            name = toPool.name + "Pool"
-        };
-        ObjectPool pool = newPool.AddComponent<ObjectPool>();
-        pool.PooledGameObject = toPool;
+            if (Application.isEditor)//if there are existing pools
+            {
+                GameObject obj = GameObject.Find(toPool.name + "Pool");
+                if (obj)
+                {
+                    return obj.GetComponent<ObjectPool>();
+                }
+            }
 
-        return pool;
+            GameObject newPool = new GameObject
+            {
+                name = toPool.name + "Pool"
+            };
+            ObjectPool pool = newPool.AddComponent<ObjectPool>();
+            pool.PooledGameObject = toPool;
+
+            return pool;
+        }
+
     }
-
 }

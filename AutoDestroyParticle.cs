@@ -1,20 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-[RequireComponent(typeof(ParticleSystem))]
-public class AutoDestroyParticle : MonoBehaviour
+namespace Utils
 {
-
-    ParticleSystem _particleSystem;
-
-    private void Awake()
+    [RequireComponent(typeof(ParticleSystem))]
+    public class AutoDestroyParticle : MonoBehaviour
     {
-        _particleSystem = GetComponent<ParticleSystem>();
-    }
 
-    private void Update()
-    {
-        if (!_particleSystem.IsAlive()) Destroy(gameObject);
+        ParticleSystem _particleSystem;
+
+        private void Awake()
+        {
+            _particleSystem = GetComponent<ParticleSystem>();
+        }
+
+        private void Update()
+        {
+            if (!_particleSystem.IsAlive()) Destroy(gameObject);
+        }
     }
 }

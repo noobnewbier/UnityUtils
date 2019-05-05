@@ -2,138 +2,141 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public interface ICircularBuffer<T>
+namespace Utils
 {
-    int Count { get; }
-    int Capacity { get; set; }
-    bool IsBeginning { get; }
-    bool IsEnd { get; }
-    T Current { get; }
-    T Enqueue(T item);
-    T Dequeue();
-    void Clear();
-    T MoveNext();
-    T MovePrevious();
-}
-
-public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
-{
-    private T[] _buffer;
-    private int _head;
-    private int _tail;
-    private int _currentIndex = 0;
-
-    public CircularBuffer(int capacity)
+    public interface ICircularBuffer<T>
     {
-        if (capacity < 0)
-            throw new ArgumentOutOfRangeException("capacity", "must be positive");
-        _buffer = new T[capacity];
-        _head = capacity - 1;
+        int Count { get; }
+        int Capacity { get; set; }
+        bool IsBeginning { get; }
+        bool IsEnd { get; }
+        T Current { get; }
+        T Enqueue(T item);
+        T Dequeue();
+        void Clear();
+        T MoveNext();
+        T MovePrevious();
     }
 
-    public CircularBuffer(T[] buffer)
+    public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
     {
-        _buffer = buffer;
-        _head = buffer.Length - 1;
-    }
+        private T[] _buffer;
+        private int _head;
+        private int _tail;
+        private int _currentIndex = 0;
 
-    public int Count { get; private set; }
-
-    public int Capacity
-    {
-        get { return _buffer.Length; }
-        set
+        public CircularBuffer(int capacity)
         {
-            if (value < 0)
-                throw new ArgumentOutOfRangeException("value", "must be positive");
+            if (capacity < 0)
+                throw new ArgumentOutOfRangeException("capacity", "must be positive");
+            _buffer = new T[capacity];
+            _head = capacity - 1;
+        }
 
-            if (value == _buffer.Length)
-                return;
-
-            var buffer = new T[value];
-            var count = 0;
-            while (Count > 0 && count < value)
-                buffer[count++] = Dequeue();
-
+        public CircularBuffer(T[] buffer)
+        {
             _buffer = buffer;
-            Count = count;
-            _head = count - 1;
-            _tail = 0;
+            _head = buffer.Length - 1;
         }
-    }
 
-    public T Current => _buffer[WrappedIndex];
+        public int Count { get; private set; }
 
-    public bool IsBeginning => WrappedIndex == 0;
-
-    public bool IsEnd => WrappedIndex == Capacity - 1;
-
-    private int WrappedIndex
-    {
-        get
+        public int Capacity
         {
-            int index = _currentIndex % Capacity;
-            return index < 0 ? index + Capacity: index;
+            get { return _buffer.Length; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("value", "must be positive");
+
+                if (value == _buffer.Length)
+                    return;
+
+                var buffer = new T[value];
+                var count = 0;
+                while (Count > 0 && count < value)
+                    buffer[count++] = Dequeue();
+
+                _buffer = buffer;
+                Count = count;
+                _head = count - 1;
+                _tail = 0;
+            }
         }
-    }
+
+        public T Current => _buffer[WrappedIndex];
+
+        public bool IsBeginning => WrappedIndex == 0;
+
+        public bool IsEnd => WrappedIndex == Capacity - 1;
+
+        private int WrappedIndex
+        {
+            get
+            {
+                int index = _currentIndex % Capacity;
+                return index < 0 ? index + Capacity: index;
+            }
+        }
 
 
-    public T Enqueue(T item)
-    {
-        _head = (_head + 1) % Capacity;
-        var overwritten = _buffer[_head];
-        _buffer[_head] = item;
-        if (Count == Capacity)
+        public T Enqueue(T item)
+        {
+            _head = (_head + 1) % Capacity;
+            var overwritten = _buffer[_head];
+            _buffer[_head] = item;
+            if (Count == Capacity)
+                _tail = (_tail + 1) % Capacity;
+            else
+                ++Count;
+            return overwritten;
+        }
+
+        public T Dequeue()
+        {
+            if (Count == 0)
+                throw new InvalidOperationException("queue exhausted");
+
+            var dequeued = _buffer[_tail];
+            _buffer[_tail] = default(T);
             _tail = (_tail + 1) % Capacity;
-        else
-            ++Count;
-        return overwritten;
+            --Count;
+            return dequeued;
+        }
+
+        public void Clear()
+        {
+            _head = Capacity - 1;
+            _tail = 0;
+            Count = 0;
+        }
+
+
+        public T MoveNext()
+        {
+            _currentIndex++;
+            return Current;
+        }
+
+        public T MovePrevious()
+        {
+            _currentIndex--;
+            return Current;
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            if (Count == 0 || Capacity == 0)
+                yield break;
+
+            for (var i = 0; i < Count; ++i)
+                yield return _buffer[i];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
     }
-
-    public T Dequeue()
-    {
-        if (Count == 0)
-            throw new InvalidOperationException("queue exhausted");
-
-        var dequeued = _buffer[_tail];
-        _buffer[_tail] = default(T);
-        _tail = (_tail + 1) % Capacity;
-        --Count;
-        return dequeued;
-    }
-
-    public void Clear()
-    {
-        _head = Capacity - 1;
-        _tail = 0;
-        Count = 0;
-    }
-
-
-    public T MoveNext()
-    {
-        _currentIndex++;
-        return Current;
-    }
-
-    public T MovePrevious()
-    {
-        _currentIndex--;
-        return Current;
-    }
-
-    public IEnumerator<T> GetEnumerator()
-    {
-        if (Count == 0 || Capacity == 0)
-            yield break;
-
-        for (var i = 0; i < Count; ++i)
-            yield return _buffer[i];
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
 }

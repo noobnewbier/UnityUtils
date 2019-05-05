@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace NumericExtension
+namespace Utils
 {
     public static class FloatUtil
     {
