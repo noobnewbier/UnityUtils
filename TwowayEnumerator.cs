@@ -15,10 +15,7 @@ public class TwoWayEnumerator<T> : ITwoWayEnumerator<T>
 
     public TwoWayEnumerator(IEnumerator<T> enumerator)
     {
-        if (enumerator == null)
-            throw new ArgumentNullException("enumerator is null");
-
-        _enumerator = enumerator;
+        _enumerator = enumerator ?? throw new ArgumentNullException("enumerator is null");
         _buffer = new List<T>();
         _index = -1;
     }
