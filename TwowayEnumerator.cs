@@ -11,13 +11,13 @@ namespace Utils
 
     public class TwoWayEnumerator<T> : ITwoWayEnumerator<T>
     {
-        private IEnumerator<T> _enumerator;
-        private List<T> _buffer;
+        private readonly List<T> _buffer;
+        private readonly IEnumerator<T> _enumerator;
         private int _index;
 
         public TwoWayEnumerator(IEnumerator<T> enumerator)
         {
-            _enumerator = enumerator ?? throw new ArgumentNullException("enumerator is null");
+            _enumerator = enumerator ?? throw new ArgumentNullException(nameof(enumerator));
             _buffer = new List<T>();
             _index = -1;
         }
@@ -56,7 +56,9 @@ namespace Utils
             get
             {
                 if (_index < 0 || _index >= _buffer.Count)
+                {
                     throw new InvalidOperationException("index out of bounds!: " + _index + ", Count: " + _buffer.Count);
+                }
 
                 return _buffer[_index];
             }
@@ -74,9 +76,6 @@ namespace Utils
             _enumerator.Dispose();
         }
 
-        object IEnumerator.Current
-        {
-            get { return Current; }
-        }
+        object IEnumerator.Current => Current;
     }
 }

@@ -4,8 +4,7 @@ namespace Utils
 {
     public abstract class PooledMonoBehaviour : MonoBehaviour
     {
-
-        ObjectPool _pool;
+        private ObjectPool _pool;
 
         protected virtual void Awake()
         {
@@ -17,7 +16,7 @@ namespace Utils
 
         public GameObject GetPooledInstance()
         {
-            GameObject toReturn = _pool.GetInstance();
+            var toReturn = _pool.GetInstance();
             toReturn.GetComponent<PooledMonoBehaviour>()._pool = _pool; //what if the same gameobject have multiple pooledObject
 
             return toReturn;
@@ -28,6 +27,5 @@ namespace Utils
             _pool.AddInstance(this);
             gameObject.SetActive(false);
         }
-
     }
 }

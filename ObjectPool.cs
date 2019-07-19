@@ -6,16 +6,19 @@ namespace Utils
 {
     public class ObjectPool : MonoBehaviour
     {
-        const int PoolSize = 50;
+        private const int PoolSize = 50;
+        private readonly Stack<PooledMonoBehaviour> _pool = new Stack<PooledMonoBehaviour>();
 
-        public PooledMonoBehaviour PooledGameObject { set { _pooledMono = value; } }
+        private PooledMonoBehaviour _pooledMono;
 
-        PooledMonoBehaviour _pooledMono;
-        Stack<PooledMonoBehaviour> _pool = new Stack<PooledMonoBehaviour>();
+        public PooledMonoBehaviour PooledGameObject
+        {
+            set => _pooledMono = value;
+        }
 
 
         public T GetInstance<T>() where T : PooledMonoBehaviour
-        { 
+        {
             return GetInstance().GetComponent<T>();
         }
 
@@ -23,9 +26,13 @@ namespace Utils
         {
             GameObject toReturn;
             if (!_pool.Any())
+            {
                 toReturn = Instantiate(_pooledMono.gameObject);
+            }
             else
+            {
                 toReturn = _pool.Pop().gameObject;
+            }
 
             toReturn.SetActive(true);
             toReturn.transform.SetParent(transform);
@@ -49,24 +56,23 @@ namespace Utils
 
         public static ObjectPool GetPoolFor(PooledMonoBehaviour toPool)
         {
-            if (Application.isEditor)//if there are existing pools
+            if (Application.isEditor) //if there are existing pools
             {
-                GameObject obj = GameObject.Find(toPool.name + "Pool");
+                var obj = GameObject.Find(toPool.name + "Pool");
                 if (obj)
                 {
                     return obj.GetComponent<ObjectPool>();
                 }
             }
 
-            GameObject newPool = new GameObject
+            var newPool = new GameObject
             {
                 name = toPool.name + "Pool"
             };
-            ObjectPool pool = newPool.AddComponent<ObjectPool>();
+            var pool = newPool.AddComponent<ObjectPool>();
             pool.PooledGameObject = toPool;
 
             return pool;
         }
-
     }
 }

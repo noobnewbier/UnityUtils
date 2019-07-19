@@ -21,14 +21,17 @@ namespace Utils
     public class CircularBuffer<T> : ICircularBuffer<T>, IEnumerable<T>
     {
         private T[] _buffer;
+        private int _currentIndex;
         private int _head;
         private int _tail;
-        private int _currentIndex = 0;
 
         public CircularBuffer(int capacity)
         {
             if (capacity < 0)
-                throw new ArgumentOutOfRangeException("capacity", "must be positive");
+            {
+                throw new ArgumentOutOfRangeException(nameof(capacity), "must be positive");
+            }
+
             _buffer = new T[capacity];
             _head = capacity - 1;
         }
@@ -39,18 +42,31 @@ namespace Utils
             _head = buffer.Length - 1;
         }
 
+        private int WrappedIndex
+        {
+            get
+            {
+                var index = _currentIndex % Capacity;
+                return index < 0 ? index + Capacity : index;
+            }
+        }
+
         public int Count { get; private set; }
 
         public int Capacity
         {
-            get { return _buffer.Length; }
+            get => _buffer.Length;
             set
             {
                 if (value < 0)
-                    throw new ArgumentOutOfRangeException("value", "must be positive");
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "must be positive");
+                }
 
                 if (value == _buffer.Length)
+                {
                     return;
+                }
 
                 var buffer = new T[value];
                 var count = 0;
@@ -70,15 +86,6 @@ namespace Utils
 
         public bool IsEnd => WrappedIndex == Capacity - 1;
 
-        private int WrappedIndex
-        {
-            get
-            {
-                int index = _currentIndex % Capacity;
-                return index < 0 ? index + Capacity: index;
-            }
-        }
-
 
         public T Enqueue(T item)
         {
@@ -86,19 +93,26 @@ namespace Utils
             var overwritten = _buffer[_head];
             _buffer[_head] = item;
             if (Count == Capacity)
+            {
                 _tail = (_tail + 1) % Capacity;
+            }
             else
+            {
                 ++Count;
+            }
+
             return overwritten;
         }
 
         public T Dequeue()
         {
             if (Count == 0)
+            {
                 throw new InvalidOperationException("queue exhausted");
+            }
 
             var dequeued = _buffer[_tail];
-            _buffer[_tail] = default(T);
+            _buffer[_tail] = default;
             _tail = (_tail + 1) % Capacity;
             --Count;
             return dequeued;
@@ -127,7 +141,9 @@ namespace Utils
         public IEnumerator<T> GetEnumerator()
         {
             if (Count == 0 || Capacity == 0)
+            {
                 yield break;
+            }
 
             for (var i = 0; i < Count; ++i)
                 yield return _buffer[i];
@@ -137,6 +153,5 @@ namespace Utils
         {
             return GetEnumerator();
         }
-
     }
 }

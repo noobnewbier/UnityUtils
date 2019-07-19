@@ -5,32 +5,36 @@
 //
 
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Utils
 {
     [RequireComponent(typeof(Camera))]
     public class ThirdPersonCamera : MonoBehaviour
     {
-        [SerializeField] Transform _cameraPosition;          // the usual position for the camera, specified by a transform in the game
-        [SerializeField] float _smooth = 3f;       // カメラモーションのスムーズ化用変数
+        [FormerlySerializedAs("_cameraPosition")] [SerializeField]
+        private Transform cameraPosition; // the usual position for the camera, specified by a transform in the game
 
-        void Start()
+        [FormerlySerializedAs("_smooth")] [SerializeField] private float smooth = 3f; // カメラモーションのスムーズ化用変数
+
+        private void Start()
         {
-            transform.position = _cameraPosition.position;
-            transform.forward = _cameraPosition.forward;
+            var selfTransform = transform;
+            selfTransform.position = cameraPosition.position;
+            selfTransform.forward = cameraPosition.forward;
         }
 
 
-        void FixedUpdate()  // このカメラ切り替えはFixedUpdate()内でないと正常に動かない
+        private void FixedUpdate() // このカメラ切り替えはFixedUpdate()内でないと正常に動かない
         {
-            SetCameraPosition(_cameraPosition);
+            SetCameraPosition(cameraPosition);
         }
-    
-        void SetCameraPosition(Transform targetTransform)
+
+        private void SetCameraPosition(Transform targetTransform)
         {
-            transform.position = Vector3.Lerp(transform.position, targetTransform.position, Time.fixedDeltaTime * _smooth);
-            transform.forward = Vector3.Lerp(transform.forward, targetTransform.forward, Time.fixedDeltaTime * _smooth);
+            var selfTransform = transform;
+            selfTransform.position = Vector3.Lerp(selfTransform.position, targetTransform.position, Time.fixedDeltaTime * smooth);
+            selfTransform.forward = Vector3.Lerp(selfTransform.forward, targetTransform.forward, Time.fixedDeltaTime * smooth);
         }
-  
     }
 }

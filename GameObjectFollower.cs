@@ -1,29 +1,27 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Utils
 {
     public class GameObjectFollower : MonoBehaviour
     {
+        [FormerlySerializedAs("_smooth")] [SerializeField] private float smooth = 15f; // カメラモーションのスムーズ化用変数
+        [FormerlySerializedAs("_transformToFollow")] [SerializeField] private Transform transformToFollow;
 
-        [SerializeField] Transform _transformToFollow;
-        [SerializeField] float _smooth = 15f;       // カメラモーションのスムーズ化用変数
-        Vector3 _offset;
-
-
-        void Start()
+        private void FixedUpdate() // このカメラ切り替えはFixedUpdate()内でないと正常に動かない
         {
-            _offset = transform.position - _transformToFollow.position;
+            SetPosition(transformToFollow.position);
+            SetRotation(transformToFollow.rotation);
         }
 
-
-        void FixedUpdate()  // このカメラ切り替えはFixedUpdate()内でないと正常に動かない
+        private void SetPosition(Vector3 targetPosition)
         {
-            SetPosition((_transformToFollow.rotation * _offset) + _transformToFollow.position);
+            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * smooth);
         }
 
-        void SetPosition(Vector3 targetPosition)
+        private void SetRotation(Quaternion targetRotation)
         {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * _smooth);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * smooth);
         }
     }
 }

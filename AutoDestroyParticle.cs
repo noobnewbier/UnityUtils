@@ -5,8 +5,7 @@ namespace Utils
     [RequireComponent(typeof(ParticleSystem))]
     public class AutoDestroyParticle : MonoBehaviour
     {
-
-        ParticleSystem _particleSystem;
+        private ParticleSystem _particleSystem;
 
         private void Awake()
         {
@@ -15,7 +14,10 @@ namespace Utils
 
         private void Update()
         {
-            if (!_particleSystem.IsAlive()) Destroy(gameObject);
+            if (!_particleSystem.IsAlive())
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }
