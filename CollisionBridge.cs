@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 // ReSharper disable SuspiciousTypeConversion.Global
 
 namespace Utils
