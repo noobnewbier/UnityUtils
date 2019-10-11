@@ -7,15 +7,14 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Utils
+namespace UnityUtils
 {
     [RequireComponent(typeof(Camera))]
     public class ThirdPersonCamera : MonoBehaviour
     {
-        [FormerlySerializedAs("_cameraPosition")] [SerializeField]
-        private Transform cameraPosition; // the usual position for the camera, specified by a transform in the game
+        [SerializeField] private Transform cameraPosition; // the usual position for the camera, specified by a transform in the game
 
-        [FormerlySerializedAs("_smooth")] [SerializeField] private float smooth = 3f; // カメラモーションのスムーズ化用変数
+        [SerializeField] private float smooth = 3f; // カメラモーションのスムーズ化用変数
 
         private void Start()
         {

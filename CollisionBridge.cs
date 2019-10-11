@@ -2,7 +2,7 @@
 
 // ReSharper disable SuspiciousTypeConversion.Global
 
-namespace Utils
+namespace UnityUtils
 {
     [RequireComponent(typeof(Collider))]
     public class CollisionBridge : MonoBehaviour

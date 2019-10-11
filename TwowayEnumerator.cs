@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Utils
+namespace UnityUtils
 {
     public interface ITwoWayEnumerator<T> : IEnumerator<T>
     {

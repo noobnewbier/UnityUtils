@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Utils
+namespace UnityUtils
 {
     public abstract class PooledMonoBehaviour : MonoBehaviour
     {

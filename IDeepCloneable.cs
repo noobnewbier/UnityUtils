@@ -1,4 +1,4 @@
-namespace Utils
+namespace UnityUtils
 {
     public interface IDeepCloneable<out T>
     {

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Utils
+namespace UnityUtils
 {
     public class GameObjectFollower : MonoBehaviour
     {

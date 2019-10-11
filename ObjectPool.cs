@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Utils
+namespace UnityUtils
 {
     public class ObjectPool : MonoBehaviour
     {
