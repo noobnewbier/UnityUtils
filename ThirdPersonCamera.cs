@@ -5,7 +5,6 @@
 //
 
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace UnityUtils
 {
