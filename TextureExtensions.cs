@@ -5,7 +5,7 @@ namespace UnityUtils
 {
     public static class TextureExtensions
     {
-        #region scrap and clean up fromhttps://forum.unity.com/threads/rotate-a-texture-with-an-arbitrary-angle.23904/
+        #region scrap and clean up from https://forum.unity.com/threads/rotate-a-texture-with-an-arbitrary-angle.23904/
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         public static void RotateTexture(this Texture2D tex, float angle, Color defaultColor = default)
@@ -35,8 +35,8 @@ namespace UnityUtils
                 var y2 = y1;
                 for (var y = 0; y < h; y++)
                 {          
-                    x2 += dx_x; //rot_x(angle, x1, y1);
-                    y2 += dx_y; //rot_y(angle, x1, y1);
+                    x2 += dx_x;
+                    y2 += dx_y; 
 
                     var x2Int = (int) x2;
                     var y2Int = (int) y2;
