@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
@@ -79,5 +80,36 @@ namespace UnityUtils
         }
 
         #endregion
+
+        public static void TranslateTexture
+        (
+            this Texture2D tex,
+            int xOffset,
+            int yOffset
+        )
+        {
+            var w = tex.width;
+            var h = tex.height;
+            var pixelsCount = w * h;
+            var originalPixels = tex.GetPixels();
+            var newPixels = new Color[pixelsCount];
+            Array.Copy(originalPixels, newPixels, pixelsCount);
+            
+            for (var x = 0; x < w; x++)
+            {
+                for (var y = 0; y < h; y++)
+                {
+                    var newPixelPosition = (y + yOffset) * w + (x + xOffset);
+                    if (newPixelPosition >= pixelsCount || newPixelPosition < 0)
+                    {
+                        continue;
+                    }
+                    newPixels[y * w + x] = originalPixels[newPixelPosition];
+                }
+            }
+            
+            tex.SetPixels(newPixels);
+            tex.Apply();
+        }
     }
 }
