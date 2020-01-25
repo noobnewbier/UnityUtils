@@ -6,19 +6,45 @@ namespace UnityUtils
 {
     public static class TextureExtensions
     {
-        #region scrap and clean up from https://forum.unity.com/threads/rotate-a-texture-with-an-arbitrary-angle.23904/
-
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
-        public static void RotateTexture(this Texture2D tex, float angle, Color defaultColor = default)
+        public static void TranslateTexture
+        (
+            this Texture2D tex,
+            int xOffset,
+            int yOffset
+        )
         {
-
             var w = tex.width;
             var h = tex.height;
             var pixelsCount = w * h;
             var originalPixels = tex.GetPixels();
             var newPixels = new Color[pixelsCount];
-            
-            
+            Array.Copy(originalPixels, newPixels, pixelsCount);
+
+            for (var y = 0; y < h; y++)
+            for (var x = 0; x < w; x++)
+            {
+                var newPixelPosition = (y + yOffset) * w + x + xOffset;
+                if (newPixelPosition >= pixelsCount || newPixelPosition < 0) continue;
+
+                newPixels[y * w + x] = originalPixels[newPixelPosition];
+            }
+
+            tex.SetPixels(newPixels);
+            tex.Apply();
+        }
+
+        #region scrap and clean up from https://forum.unity.com/threads/rotate-a-texture-with-an-arbitrary-angle.23904/
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        public static void RotateTexture(this Texture2D tex, float angle, Color defaultColor = default)
+        {
+            var w = tex.width;
+            var h = tex.height;
+            var pixelsCount = w * h;
+            var originalPixels = tex.GetPixels();
+            var newPixels = new Color[pixelsCount];
+
+
             var x0 = rot_x(angle, -w / 2.0f, -h / 2.0f) + w / 2.0f;
             var y0 = rot_y(angle, -w / 2.0f, -h / 2.0f) + h / 2.0f;
 
@@ -30,37 +56,33 @@ namespace UnityUtils
             var x1 = x0;
             var y1 = y0;
 
-            for (var x = 0; x < w; x++)
+            for (var y = 0; y < h; y++)
             {
                 var x2 = x1;
                 var y2 = y1;
-                for (var y = 0; y < h; y++)
-                {          
+                for (var x = 0; x < w; x++)
+                {
                     x2 += dx_x;
-                    y2 += dx_y; 
+                    y2 += dx_y;
 
                     var x2Int = (int) x2;
                     var y2Int = (int) y2;
 
                     Color color;
-                    
+
                     if (x2Int >= w || x2Int < 0 ||
                         y2Int >= h || y2Int < 0)
-                    {
                         color = defaultColor;
-                    }
                     else
-                    {
                         color = originalPixels[y2Int * w + x2Int];
-                    }
-                    
+
                     newPixels[y * w + x] = color;
                 }
 
                 x1 += dy_x;
                 y1 += dy_y;
             }
-            
+
             tex.SetPixels(newPixels);
             tex.Apply();
         }
@@ -80,36 +102,5 @@ namespace UnityUtils
         }
 
         #endregion
-
-        public static void TranslateTexture
-        (
-            this Texture2D tex,
-            int xOffset,
-            int yOffset
-        )
-        {
-            var w = tex.width;
-            var h = tex.height;
-            var pixelsCount = w * h;
-            var originalPixels = tex.GetPixels();
-            var newPixels = new Color[pixelsCount];
-            Array.Copy(originalPixels, newPixels, pixelsCount);
-            
-            for (var x = 0; x < w; x++)
-            {
-                for (var y = 0; y < h; y++)
-                {
-                    var newPixelPosition = (y + yOffset) * w + (x + xOffset);
-                    if (newPixelPosition >= pixelsCount || newPixelPosition < 0)
-                    {
-                        continue;
-                    }
-                    newPixels[y * w + x] = originalPixels[newPixelPosition];
-                }
-            }
-            
-            tex.SetPixels(newPixels);
-            tex.Apply();
-        }
     }
 }
