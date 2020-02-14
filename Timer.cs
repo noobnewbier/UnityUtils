@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace UnityUtils
@@ -13,11 +14,20 @@ namespace UnityUtils
 
         public float NormalizedTime => timer / threshold;
 
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        public bool ResetInThisFrame => timer == 0f;
+
         public void Init(float newThreshold, float currentTime = 0)
         {
-            if (isInitialized)
+            Init(newThreshold, false, currentTime);
+        }
+
+        public void Init(float newThreshold, [UsedImplicitly] bool forceInit, float currentTime = 0)
+        {
+            if (isInitialized && !forceInit)
                 throw new InvalidOperationException(
-                    $"timer in {gameObject.name} is already initialized, but is initialized again");
+                    $"timer in {gameObject.name} is already initialized, but is initialized again"
+                );
 
             timer = currentTime;
             threshold = newThreshold;
@@ -39,7 +49,8 @@ namespace UnityUtils
         {
             if (!isInitialized)
                 throw new InvalidOperationException(
-                    $"timer in {gameObject.name} is not initialized");
+                    $"timer in {gameObject.name} is not initialized"
+                );
 
             timer += Time.deltaTime;
         }
