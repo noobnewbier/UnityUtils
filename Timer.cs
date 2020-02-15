@@ -54,5 +54,10 @@ namespace UnityUtils
 
             timer += Time.deltaTime;
         }
+
+        public void Reset()
+        {
+            timer = 0f;
+        }
     }
 }
