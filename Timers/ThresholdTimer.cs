@@ -2,15 +2,15 @@ using System;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace UnityUtils
+namespace UnityUtils.Timers
 {
-    public class Timer : MonoBehaviour
+    public class ThresholdTimer : MonoBehaviour
     {
         [SerializeField] private bool isInitialized;
         [SerializeField] private float threshold;
         [SerializeField] private float timer;
 
-        public bool PassedThreshold => threshold > timer;
+        public bool PassedThreshold => timer > threshold;
 
         public float NormalizedTime => timer / threshold;
 
@@ -46,6 +46,11 @@ namespace UnityUtils
         }
 
         private void Update()
+        {
+            Count();
+        }
+
+        protected virtual void Count()
         {
             if (!isInitialized)
                 throw new InvalidOperationException(
