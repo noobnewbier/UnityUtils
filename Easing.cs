@@ -10,7 +10,7 @@ namespace UnityUtils
             return y;
         }
 
-        private static float Flip(float x)
+        public static float Flip(float x)
         {
             return 1 - x;
         }
