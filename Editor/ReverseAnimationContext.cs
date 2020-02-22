@@ -1,8 +1,9 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Debug = System.Diagnostics.Debug;
 
-namespace UnityUtils
+namespace UnityUtils.Editor
 {
     public static class ReverseAnimationContext
     {
@@ -12,8 +13,8 @@ namespace UnityUtils
             var directoryPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(Selection.activeObject));
             var fileName = Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject));
             var fileExtension = Path.GetExtension(AssetDatabase.GetAssetPath(Selection.activeObject));
-            System.Diagnostics.Debug.Assert(fileName != null, nameof(fileName) + " != null");
-            
+            Debug.Assert(fileName != null, nameof(fileName) + " != null");
+
             fileName = fileName.Split('.')[0];
             var copiedFilePath = directoryPath + Path.DirectorySeparatorChar + fileName + "_Reversed" + fileExtension;
 
@@ -56,11 +57,14 @@ namespace UnityUtils
                 AnimationUtility.SetAnimationEvents(clip, events);
             }
 
-            Debug.Log("Animation reversed!");
+            UnityEngine.Debug.Log("Animation reversed!");
         }
 
         [MenuItem("Assets/Create Reversed Clip", true)]
-        private static bool ReverseClipValidation() => Selection.activeObject is AnimationClip;
+        private static bool ReverseClipValidation()
+        {
+            return Selection.activeObject is AnimationClip;
+        }
 
         public static AnimationClip GetSelectedClip()
         {
