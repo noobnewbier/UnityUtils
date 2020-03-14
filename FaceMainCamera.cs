@@ -5,11 +5,9 @@ namespace UnityUtils
 {
     public class FaceMainCamera : MonoBehaviour
     {
-        [SerializeField] private Transform transformToFace;
-        [SerializeField] private Vector3 offsetAngle;
-        
-
         private Transform _cameraTransform;
+        [SerializeField] private Vector3 offsetAngle;
+        [SerializeField] private Transform transformToFace;
 
         private void OnEnable()
         {
@@ -20,7 +18,7 @@ namespace UnityUtils
         private void Update()
         {
             transformToFace.LookAt(_cameraTransform);
-            
+
             transformToFace.Rotate(offsetAngle);
         }
     }

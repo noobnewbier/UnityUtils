@@ -17,7 +17,7 @@ namespace UnityUtils
 
             var xPos = distance * Mathf.Cos(angle);
             var yPos = distance * Mathf.Sin(angle);
-            
+
             return new Vector2(xPos, yPos);
         }
     }

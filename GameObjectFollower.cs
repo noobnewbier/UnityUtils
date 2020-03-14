@@ -5,8 +5,11 @@ namespace UnityUtils
 {
     public class GameObjectFollower : MonoBehaviour
     {
-        [FormerlySerializedAs("_smooth")] [SerializeField] private float smooth = 15f; // カメラモーションのスムーズ化用変数
-        [FormerlySerializedAs("_transformToFollow")] [SerializeField] private Transform transformToFollow;
+        [FormerlySerializedAs("_smooth")] [SerializeField]
+        private float smooth = 15f; // カメラモーションのスムーズ化用変数
+
+        [FormerlySerializedAs("_transformToFollow")] [SerializeField]
+        private Transform transformToFollow;
 
         private void FixedUpdate() // このカメラ切り替えはFixedUpdate()内でないと正常に動かない
         {

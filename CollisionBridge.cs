@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 // ReSharper disable SuspiciousTypeConversion.Global
 
@@ -7,33 +8,95 @@ namespace UnityUtils
     [RequireComponent(typeof(Collider))]
     public class CollisionBridge : MonoBehaviour
     {
-        [SerializeField] private MonoBehaviour _delegate;
+        [SerializeField] private MonoBehaviour[] delegates;
 
         //todo: include other events
         private void OnCollisionEnter(Collision collision)
         {
-            if (_delegate == null)
+            foreach (var @delegate in delegates)
             {
-                return;
-            }
+                if (@delegate == null) return;
 
-            if (_delegate is ICollisionEnterDelegate collisionEnterDelegate)
-            {
-                collisionEnterDelegate.OnCollisionEnterCalled(collision);
+                if (@delegate is ICollisionEnterDelegate collisionEnterDelegate)
+                    collisionEnterDelegate.OnCollisionEnterCalled(collision);
             }
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (_delegate == null)
+            foreach (var @delegate in delegates)
             {
+                if (@delegate == null) return;
+
+                if (@delegate is ITriggerExitDelegate triggerExitDelegate)
+                    triggerExitDelegate.OnTriggerExitCalled(other);
+            }
+        }
+
+        private void OnCollisionStay(Collision collision)
+        {
+            foreach (var @delegate in delegates)
+            {
+                if (@delegate == null) return;
+
+                if (@delegate is ICollisionStayDelegate collisionStayDelegate)
+                    collisionStayDelegate.OnCollisionStayCalled(collision);
+            }
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            foreach (var @delegate in delegates)
+            {
+                if (@delegate == null) return;
+
+                if (@delegate is ICollisionExitDelegate collisionStayDelegate)
+                    collisionStayDelegate.OnCollisionExitCalled(collision);
+            }
+        }
+
+        private void OnValidate()
+        {
+            if (!delegates.Any())
+            {
+                Debug.Log($"{gameObject.name}'s collision bridge : delegates has no element");
                 return;
             }
 
-            if (_delegate is ITriggerExitDelegate triggerExitDelegate)
+            for (var i = 0; i < delegates.Length; i++)
             {
-                triggerExitDelegate.OnTriggerExitCalled(other);
+                if (!IsAssigned(delegates[i]))
+                {
+                    Debug.Log(
+                        $"{gameObject.name}'s collision bridge : delegate not assigned"
+                    );
+
+                    return;
+                }
+
+                if (!IsValidDelegate(delegates[i]))
+                {
+                    Debug.Log(
+                        $"{gameObject.name}'s collision bridge :  {delegates[i].name} does not implement the necessary interface"
+                    );
+
+                    delegates[i] = null;
+                }
             }
+        }
+
+        private static bool IsValidDelegate(MonoBehaviour mono)
+        {
+            return
+                mono is ICollisionEnterDelegate ||
+                mono is ICollisionStayDelegate ||
+                mono is ICollisionExitDelegate ||
+                mono is ITriggerExitDelegate;
+        }
+
+        private static bool IsAssigned(MonoBehaviour mono)
+        {
+            return (object) mono != null;
         }
     }
 
@@ -45,5 +108,15 @@ namespace UnityUtils
     public interface ITriggerExitDelegate
     {
         void OnTriggerExitCalled(Collider other);
+    }
+
+    public interface ICollisionStayDelegate
+    {
+        void OnCollisionStayCalled(Collision collision);
+    }
+
+    public interface ICollisionExitDelegate
+    {
+        void OnCollisionExitCalled(Collision collision);
     }
 }

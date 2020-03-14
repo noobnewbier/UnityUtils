@@ -6,8 +6,7 @@ namespace UnityUtils
 {
     public static class TextureExtensions
     {
-        public static void TranslateTexture
-        (
+        public static void TranslateTexture(
             this Texture2D tex,
             int xOffset,
             int yOffset
@@ -33,7 +32,7 @@ namespace UnityUtils
             tex.Apply();
         }
 
-        #region scrap and clean up from https://forum.unity.com/threads/rotate-a-texture-with-an-arbitrary-angle.23904/
+        #region scrap and clean up from https: //forum.unity.com/threads/rotate-a-texture-with-an-arbitrary-angle.23904/
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         public static void RotateTexture(this Texture2D tex, float angle, Color defaultColor = default)

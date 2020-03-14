@@ -26,13 +26,9 @@ namespace UnityUtils
         {
             GameObject toReturn;
             if (!_pool.Any())
-            {
                 toReturn = Instantiate(_pooledMono.gameObject);
-            }
             else
-            {
                 toReturn = _pool.Pop().gameObject;
-            }
 
             toReturn.SetActive(true);
             toReturn.transform.SetParent(transform);
@@ -59,10 +55,7 @@ namespace UnityUtils
             if (Application.isEditor) //if there are existing pools
             {
                 var obj = GameObject.Find(toPool.name + "Pool");
-                if (obj)
-                {
-                    return obj.GetComponent<ObjectPool>();
-                }
+                if (obj) return obj.GetComponent<ObjectPool>();
             }
 
             var newPool = new GameObject

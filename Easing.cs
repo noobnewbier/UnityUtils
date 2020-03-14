@@ -19,7 +19,7 @@ namespace UnityUtils
         {
             var tSquare = t * t;
             var tCube = tSquare * t;
-            return (33 * tCube * tSquare + -106 * tSquare * tSquare + 126 * tCube + -67 * tSquare + 15 * t);
+            return 33 * tCube * tSquare + -106 * tSquare * tSquare + 126 * tCube + -67 * tSquare + 15 * t;
         }
     }
 }

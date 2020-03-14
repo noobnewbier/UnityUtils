@@ -4,8 +4,8 @@ namespace UnityUtils.ScaleProviders
 {
     public class RandomScaleProvider : ScaleProvider
     {
-        [SerializeField] private Vector3 minScale;
         [SerializeField] private Vector3 maxScale;
+        [SerializeField] private Vector3 minScale;
 
         public override Vector3 ProvideScale()
         {
