@@ -12,5 +12,10 @@ namespace UnityUtils.LocationProviders
             var position = transform.position;
             return new Vector3(point.x + position.x, position.y, point.y + position.z);
         }
+
+        private void OnDrawGizmosSelected()
+        {
+            GizmosHelpers.DrawWireDisc(radius, transform.position, Color.red);
+        }
     }
 }
