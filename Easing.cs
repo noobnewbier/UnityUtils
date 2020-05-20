@@ -1,9 +1,20 @@
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 namespace UnityUtils
 {
     public static class Easing
     {
+        //https://math.stackexchange.com/questions/121720/ease-in-out-function
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        public static float ExponentialEaseInOut(float x, float exponent)
+        {
+            var x_exponent = Mathf.Pow(x, exponent);
+
+            return x_exponent / (x_exponent + Mathf.Pow(1f - x, exponent));
+        }
+
+        
         public static float ExponentialEaseOut(float x, float exponent)
         {
             var y = Flip(Mathf.Pow(Flip(x), exponent));
