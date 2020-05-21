@@ -4,8 +4,8 @@ namespace UnityUtils
 {
     public class CubeGizmosDrawer : MonoBehaviour
     {
-        [SerializeField] private Vector3 size;
         [SerializeField] private Color color = Color.cyan;
+        [SerializeField] private Vector3 size;
 
         private void OnEnable()
         {
