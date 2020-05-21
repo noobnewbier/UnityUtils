@@ -14,7 +14,7 @@ namespace UnityUtils
             return x_exponent / (x_exponent + Mathf.Pow(1f - x, exponent));
         }
 
-        
+
         public static float ExponentialEaseOut(float x, float exponent)
         {
             var y = Flip(Mathf.Pow(Flip(x), exponent));
@@ -31,6 +31,15 @@ namespace UnityUtils
             var tSquare = t * t;
             var tCube = tSquare * t;
             return 33 * tCube * tSquare + -106 * tSquare * tSquare + 126 * tCube + -67 * tSquare + 15 * t;
+        }
+
+        public static Vector3 QuadraticBezierLerping(Vector3 start, Vector3 middle, Vector3 target, float t)
+        {
+            return Vector3.Lerp(
+                Vector3.Lerp(start, middle, t),
+                Vector3.Lerp(middle, target, t),
+                t
+            );
         }
     }
 }
