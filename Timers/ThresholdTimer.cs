@@ -7,10 +7,12 @@ namespace UnityUtils.Timers
     public class ThresholdTimer : MonoBehaviour
     {
         [SerializeField] private bool isInitialized;
-        [SerializeField] private float threshold;
-        [SerializeField] private float timer;
+        [SerializeField] protected float threshold;
+        [SerializeField] protected float timer;
 
         public bool PassedThreshold => timer > threshold;
+
+        public bool ReachedThreshold => timer >= threshold;
 
         public float NormalizedTime => timer / threshold;
 
@@ -22,7 +24,7 @@ namespace UnityUtils.Timers
             Init(newThreshold, false, currentTime);
         }
 
-        public void Init(float newThreshold, [UsedImplicitly] bool forceInit, float currentTime = 0)
+        public virtual void Init(float newThreshold, [UsedImplicitly] bool forceInit, float currentTime = 0)
         {
             if (isInitialized && !forceInit)
                 throw new InvalidOperationException(
