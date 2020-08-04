@@ -2,7 +2,7 @@
 
 namespace UnityUtils
 {
-    public static class TransformExtension
+    public static class GeometryExtension
     {
         //Seriously, I forgot the math behind it. Perhaps I should ask
         public static bool InFrontOf(this Transform self, Transform value)
