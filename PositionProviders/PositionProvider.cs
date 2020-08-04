@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace UnityUtils.LocationProviders
+namespace UnityUtils.PositionProviders
 {
     // in theory, it's nice if it is an interface, but we aren't using Odin :(
-    public abstract class LocationProvider : MonoBehaviour
+    public abstract class PositionProvider : MonoBehaviour
     {
         public abstract Vector3 ProvideLocation();
     }

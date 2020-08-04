@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace UnityUtils.LocationProviders
+namespace UnityUtils.PositionProviders
 {
-    public class RandomLocationWithinRectangleProvider : LocationProvider
+    public class RandomPositionWithinRectangleProvider : PositionProvider
     {
         [SerializeField] private float halfLength;
         [SerializeField] private float halfWidth;

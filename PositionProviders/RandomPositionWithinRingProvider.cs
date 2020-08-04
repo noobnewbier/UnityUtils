@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace UnityUtils.LocationProviders
+namespace UnityUtils.PositionProviders
 {
-    public class RandomLocationWithinRingProvider : LocationProvider
+    public class RandomPositionWithinRingProvider : PositionProvider
     {
         [SerializeField] private float innerRadius;
         [SerializeField] private float outerRadius;

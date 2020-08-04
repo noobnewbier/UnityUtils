@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace UnityUtils.LocationProviders
+namespace UnityUtils.PositionProviders
 {
-    public class ExactLocationProvider : LocationProvider
+    public class ExactPositionProvider : PositionProvider
     {
         public override Vector3 ProvideLocation()
         {
