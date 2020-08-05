@@ -4,5 +4,6 @@
     {    
         public const string ScriptableService = "ScriptableService/";
         public const string Providers = "Providers/";
+        public const string Data = "Data/";
     }
 }
