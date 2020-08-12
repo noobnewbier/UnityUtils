@@ -6,5 +6,6 @@
         public const string ScriptableRepository = "ScriptableRepository/";
         public const string Providers = "Providers/";
         public const string Data = "Data/";
+        public const string Factory = "Factory/";
     }
 }
