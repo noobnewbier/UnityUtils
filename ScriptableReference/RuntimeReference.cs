@@ -9,7 +9,6 @@ namespace UnityUtils.ScriptableReference
         [SerializeField] private T currentReference;
         [SerializeField] private bool canBeNullWhenAccessed;
 
-
         public T CurrentReference
         {
             get
@@ -23,13 +22,13 @@ namespace UnityUtils.ScriptableReference
             }
             set
             {
-                if (value == null & !canBeNullWhenAccessed)
+                if ((value == null) & !canBeNullWhenAccessed)
                 {
                     throw new InvalidOperationException($"{name} current reference cannot be set to null");
                 }
-                
-                currentReference = value;  
-            } 
+
+                currentReference = value;
+            }
         }
 
         private void OnEnable()
