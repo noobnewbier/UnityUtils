@@ -12,7 +12,7 @@ namespace UnityUtils
             twist = new Quaternion(projection.x, projection.y, projection.z, quaternion.w).normalized;
             swing = quaternion * Quaternion.Inverse(twist);
         }
-        
+
         public static Quaternion Constrain(this Quaternion quaternion, float angle)
         {
             var magnitude = Mathf.Sin(0.5F * angle);

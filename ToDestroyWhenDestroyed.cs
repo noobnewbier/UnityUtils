@@ -2,16 +2,13 @@ using UnityEngine;
 
 namespace UnityUtils
 {
-    public class ToDestroyWhenDestroyed : UnityEngine.MonoBehaviour
+    public class ToDestroyWhenDestroyed : MonoBehaviour
     {
         [SerializeField] private GameObject[] gameObjects;
 
         private void OnDestroy()
         {
-            foreach (var go in gameObjects)
-            {
-                Destroy(go);
-            }
+            foreach (var go in gameObjects) Destroy(go);
         }
     }
 }

@@ -80,10 +80,10 @@ namespace UnityUtils
             return pool;
         }
 
-        private void InitPool(PooledMonoBehaviour pooledMonoBehaviour, int poolSize)
+        private void InitPool(PooledMonoBehaviour pooledMonoBehaviour, int newPoolSize)
         {
             name = GetPoolName(pooledMonoBehaviour);
-            this.poolSize = poolSize;
+            poolSize = newPoolSize;
             pooledMono = pooledMonoBehaviour;
         }
 

@@ -28,7 +28,7 @@ namespace UnityUtils
         {
             return data.Aggregate((i1, i2) => f(i1).CompareTo(f(i2)) > 0 ? i1 : i2);
         }
-        
+
         //reference : https://stackoverflow.com/questions/3188693/how-can-i-get-linq-to-return-the-object-which-has-the-max-value-for-a-given-prop
         public static T MinBy<T, TU>(this IEnumerable<T> data, Func<T, TU> f) where TU : IComparable
         {

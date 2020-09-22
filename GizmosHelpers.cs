@@ -12,15 +12,15 @@ namespace UnityUtils
             Gizmos.color = color;
 
             DrawWireDisc(rad, position);
-            
+
             Gizmos.color = oldColor;
         }
-        
+
         public static void DrawWireDisc(float rad, Vector3 position)
         {
             //lower value leads to smoother circle, but slower drawing
             const float thetaDelta = 0.05f;
-            
+
             var theta = 0f;
             var x = rad * Mathf.Cos(theta);
             var y = rad * Mathf.Sin(theta);

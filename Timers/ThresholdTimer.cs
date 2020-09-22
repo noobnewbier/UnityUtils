@@ -27,9 +27,11 @@ namespace UnityUtils.Timers
         public virtual void Init(float newThreshold, [UsedImplicitly] bool forceInit, float currentTime = 0)
         {
             if (isInitialized && !forceInit)
+            {
                 throw new InvalidOperationException(
                     $"timer in {gameObject.name} is already initialized, but is initialized again"
                 );
+            }
 
             timer = currentTime;
             threshold = newThreshold;
@@ -55,9 +57,11 @@ namespace UnityUtils.Timers
         protected virtual void Count()
         {
             if (!isInitialized)
+            {
                 throw new InvalidOperationException(
                     $"timer in {gameObject.name} is not initialized"
                 );
+            }
 
             timer += Time.deltaTime;
         }

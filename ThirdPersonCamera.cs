@@ -11,8 +11,7 @@ namespace UnityUtils
     [RequireComponent(typeof(Camera))]
     public class ThirdPersonCamera : MonoBehaviour
     {
-        [SerializeField]
-        private Transform cameraPosition; // the usual position for the camera, specified by a transform in the game
+        [SerializeField] private Transform cameraPosition; // the usual position for the camera, specified by a transform in the game
 
         [SerializeField] private float smooth = 3f; // カメラモーションのスムーズ化用変数
 

@@ -15,9 +15,13 @@ namespace UnityUtils.Timers
         protected override void Count()
         {
             if (isNot ^ booleanProvider.ProvideBoolean())
+            {
                 base.Count();
+            }
             else if (shouldResetWhenConditionNotMet)
+            {
                 Reset();
+            }
         }
     }
 }

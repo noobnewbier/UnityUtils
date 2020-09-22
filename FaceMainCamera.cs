@@ -11,8 +11,14 @@ namespace UnityUtils
 
         private void OnEnable()
         {
-            if (Camera.main != null) _cameraTransform = Camera.main.transform;
-            else throw new InvalidOperationException("No main camera to be faced");
+            if (Camera.main != null)
+            {
+                _cameraTransform = Camera.main.transform;
+            }
+            else
+            {
+                throw new InvalidOperationException("No main camera to be faced");
+            }
         }
 
         private void Update()

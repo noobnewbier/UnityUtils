@@ -23,7 +23,9 @@ namespace UnityUtils.Editor
             var clip = (AnimationClip) AssetDatabase.LoadAssetAtPath(copiedFilePath, typeof(AnimationClip));
 
             if (clip == null)
+            {
                 return;
+            }
             var clipLength = clip.length;
             var curves = AnimationUtility.GetAllCurves(clip, true);
             clip.ClearCurves();
@@ -69,7 +71,10 @@ namespace UnityUtils.Editor
         public static AnimationClip GetSelectedClip()
         {
             var clips = Selection.GetFiltered(typeof(AnimationClip), SelectionMode.Assets);
-            if (clips.Length > 0) return clips[0] as AnimationClip;
+            if (clips.Length > 0)
+            {
+                return clips[0] as AnimationClip;
+            }
             return null;
         }
     }
