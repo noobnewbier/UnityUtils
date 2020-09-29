@@ -26,11 +26,17 @@ namespace UnityUtils.Pooling
 
         public void ReturnToPool()
         {
+            OnReturnToPool();
+
             var allChildren = GetComponentsInChildren<PooledMonoBehaviour>();
 
             foreach (var child in allChildren.Where(c => c != this)) child.ReturnToPool();
 
             _pool.AddInstance(this);
+        }
+
+        protected virtual void OnReturnToPool()
+        {
         }
 
         private void OnValidate()
