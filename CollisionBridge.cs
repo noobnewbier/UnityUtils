@@ -10,7 +10,6 @@ namespace UnityUtils
     {
         [SerializeField] private MonoBehaviour[] delegates;
 
-        //todo: include other events
         private void OnCollisionEnter(Collision collision)
         {
             foreach (var @delegate in delegates)
