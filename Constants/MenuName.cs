@@ -8,5 +8,6 @@
         public const string Data = "Data/";
         public const string Factory = "Factory/";
         public const string RuntimeReference = "RuntimeReference/";
+        public const string Custom = "Custom/";
     }
 }

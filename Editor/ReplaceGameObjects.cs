@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityUtils.Constants;
 
 namespace UnityUtils.Editor
 {
@@ -14,7 +15,7 @@ namespace UnityUtils.Editor
         public GameObject newType;
         public GameObject[] oldObjects;
 
-        [MenuItem("Custom/Replace GameObjects")]
+        [MenuItem(MenuName.Custom + "Replace GameObjects")]
         private static void CreateWizard()
         {
             DisplayWizard("Replace GameObjects", typeof(ReplaceGameObjects), "Replace");

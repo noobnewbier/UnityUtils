@@ -8,7 +8,7 @@ namespace UnityUtils.Editor
     [InitializeOnLoad]
     public class AutoSaveOnRunMenuItem
     {
-        private const string MenuName = "Custom/Autosave On Run";
+        private const string MenuName = Constants.MenuName.Custom + "Autosave On Run";
         private static bool _isToggled;
 
         static AutoSaveOnRunMenuItem()

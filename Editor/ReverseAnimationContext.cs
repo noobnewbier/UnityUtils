@@ -1,13 +1,14 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityUtils.Constants;
 using Debug = System.Diagnostics.Debug;
 
 namespace UnityUtils.Editor
 {
     public static class ReverseAnimationContext
     {
-        [MenuItem("Assets/Create Reversed Clip", false, 14)]
+        [MenuItem(MenuName.Custom + "Create Reversed Clip", false, 14)]
         private static void ReverseClip()
         {
             var directoryPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(Selection.activeObject));
@@ -63,10 +64,7 @@ namespace UnityUtils.Editor
         }
 
         [MenuItem("Assets/Create Reversed Clip", true)]
-        private static bool ReverseClipValidation()
-        {
-            return Selection.activeObject is AnimationClip;
-        }
+        private static bool ReverseClipValidation() => Selection.activeObject is AnimationClip;
 
         public static AnimationClip GetSelectedClip()
         {
