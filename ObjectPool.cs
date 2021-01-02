@@ -49,7 +49,7 @@ namespace UnityUtils
             {
                 _pool.Push(instance);
                 instance.gameObject.SetActive(false);
-                instance.transform.parent = transform;
+                instance.transform.SetParent(transform, false);
             }
             else
             {
