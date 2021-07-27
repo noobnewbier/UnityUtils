@@ -6,8 +6,10 @@ namespace UnityUtils.ScriptableReference
     public class FloatVariable : ScriptableObject
     {
 #if UNITY_EDITOR
+#pragma warning disable 0414
         // ReSharper disable once NotAccessedField.Local
         [Multiline] [SerializeField] private string developerDescription = "Self Descriptive Name";
+#pragma warning restore 0414
 #endif
         [SerializeField] private float value;
 
