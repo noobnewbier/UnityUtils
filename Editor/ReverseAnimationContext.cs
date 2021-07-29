@@ -27,16 +27,17 @@ namespace UnityUtils.Editor
             {
                 return;
             }
+
             var clipLength = clip.length;
-            var curves = AnimationUtility.GetAllCurves(clip, true);
             clip.ClearCurves();
-            foreach (var curve in curves)
+            foreach (var binding in AnimationUtility.GetCurveBindings(clip))
             {
-                var keys = curve.curve.keys;
+                var curve = AnimationUtility.GetEditorCurve(clip, binding);
+                var keys = curve.keys;
                 var keyCount = keys.Length;
-                var postWrapMode = curve.curve.postWrapMode;
-                curve.curve.postWrapMode = curve.curve.preWrapMode;
-                curve.curve.preWrapMode = postWrapMode;
+                var postWrapMode = curve.postWrapMode;
+                curve.postWrapMode = curve.preWrapMode;
+                curve.preWrapMode = postWrapMode;
                 for (var i = 0; i < keyCount; i++)
                 {
                     var k = keys[i];
@@ -47,8 +48,13 @@ namespace UnityUtils.Editor
                     keys[i] = k;
                 }
 
-                curve.curve.keys = keys;
-                clip.SetCurve(curve.path, curve.type, curve.propertyName, curve.curve);
+                curve.keys = keys;
+                clip.SetCurve(
+                    binding.path,
+                    binding.type,
+                    binding.propertyName,
+                    curve
+                );
             }
 
             var events = AnimationUtility.GetAnimationEvents(clip);
@@ -73,6 +79,7 @@ namespace UnityUtils.Editor
             {
                 return clips[0] as AnimationClip;
             }
+
             return null;
         }
     }
