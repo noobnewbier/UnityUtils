@@ -6,9 +6,6 @@ namespace UnityUtils.ScaleProviders
     {
         [SerializeField] private Vector3 scale;
 
-        public override Vector3 ProvideScale()
-        {
-            return scale;
-        }
+        public override Vector3 ProvideScale() => scale;
     }
 }

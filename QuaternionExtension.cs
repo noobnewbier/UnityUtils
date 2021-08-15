@@ -4,12 +4,20 @@ namespace UnityUtils
 {
     public static class QuaternionExtension
     {
-        public static void Decompose(this Quaternion quaternion, Vector3 direction, out Quaternion swing, out Quaternion twist)
+        public static void Decompose(this Quaternion quaternion,
+                                     Vector3 direction,
+                                     out Quaternion swing,
+                                     out Quaternion twist)
         {
             var vector = new Vector3(quaternion.x, quaternion.y, quaternion.z);
             var projection = Vector3.Project(vector, direction);
 
-            twist = new Quaternion(projection.x, projection.y, projection.z, quaternion.w).normalized;
+            twist = new Quaternion(
+                projection.x,
+                projection.y,
+                projection.z,
+                quaternion.w
+            ).normalized;
             swing = quaternion * Quaternion.Inverse(twist);
         }
 

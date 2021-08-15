@@ -15,12 +15,6 @@ namespace UnityUtils.Editor
         public GameObject newType;
         public GameObject[] oldObjects;
 
-        [MenuItem(MenuName.Custom + "Replace GameObjects")]
-        private static void CreateWizard()
-        {
-            DisplayWizard("Replace GameObjects", typeof(ReplaceGameObjects), "Replace");
-        }
-
         private void OnWizardCreate()
         {
             foreach (var go in oldObjects)
@@ -32,6 +26,12 @@ namespace UnityUtils.Editor
 
                 DestroyImmediate(go);
             }
+        }
+
+        [MenuItem(MenuName.Custom + "Replace GameObjects")]
+        private static void CreateWizard()
+        {
+            DisplayWizard("Replace GameObjects", typeof(ReplaceGameObjects), "Replace");
         }
     }
 }

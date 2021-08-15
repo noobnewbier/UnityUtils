@@ -6,9 +6,6 @@ namespace UnityUtils.FloatProvider
     {
         [SerializeField] private float value;
 
-        public override float ProvideFloat()
-        {
-            return value;
-        }
+        public override float ProvideFloat() => value;
     }
 }

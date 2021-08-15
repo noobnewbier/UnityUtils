@@ -10,10 +10,7 @@ namespace UnityUtils
             var angle = 2 * Mathf.PI * Random.value;
             var outerRadiusSquared = outerRadius * outerRadius;
             var innerRadiusSquared = innerRadius * innerRadius;
-            var distance = Mathf.Sqrt(
-                Random.value *
-                (outerRadiusSquared - innerRadiusSquared) + innerRadiusSquared
-            );
+            var distance = Mathf.Sqrt(Random.value * (outerRadiusSquared - innerRadiusSquared) + innerRadiusSquared);
 
             var xPos = distance * Mathf.Cos(angle);
             var yPos = distance * Mathf.Sin(angle);

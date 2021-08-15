@@ -6,11 +6,7 @@ namespace UnityUtils
 {
     public static class TextureExtensions
     {
-        public static void TranslateTexture(
-            this Texture2D tex,
-            int xOffset,
-            int yOffset
-        )
+        public static void TranslateTexture(this Texture2D tex, int xOffset, int yOffset)
         {
             var w = tex.width;
             var h = tex.height;
@@ -23,10 +19,7 @@ namespace UnityUtils
             for (var x = 0; x < w; x++)
             {
                 var newPixelPosition = (y + yOffset) * w + x + xOffset;
-                if (newPixelPosition >= pixelsCount || newPixelPosition < 0)
-                {
-                    continue;
-                }
+                if (newPixelPosition >= pixelsCount || newPixelPosition < 0) continue;
 
                 newPixels[y * w + x] = originalPixels[newPixelPosition];
             }
@@ -72,15 +65,8 @@ namespace UnityUtils
 
                     Color color;
 
-                    if (x2Int >= w || x2Int < 0 ||
-                        y2Int >= h || y2Int < 0)
-                    {
-                        color = defaultColor;
-                    }
-                    else
-                    {
-                        color = originalPixels[y2Int * w + x2Int];
-                    }
+                    if (x2Int >= w || x2Int < 0 || y2Int >= h || y2Int < 0) color = defaultColor;
+                    else color = originalPixels[y2Int * w + x2Int];
 
                     newPixels[y * w + x] = color;
                 }

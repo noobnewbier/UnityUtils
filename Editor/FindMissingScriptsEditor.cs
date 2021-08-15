@@ -13,12 +13,6 @@ namespace UnityUtils.Editor
     {
         private static int _missingCount = -1;
 
-        [MenuItem(MenuName.Custom + "Find Missing Scripts")]
-        public static void FindMissingScripts()
-        {
-            GetWindow(typeof(FindMissingScriptsEditor));
-        }
-        
         private void OnGUI()
         {
             EditorGUILayout.BeginHorizontal();
@@ -47,10 +41,7 @@ namespace UnityUtils.Editor
                         "Processing Prefabs " + i + "/" + files.Length,
                         prefabPath,
                         i / (float) files.Length
-                    ))
-                    {
-                        break;
-                    }
+                    )) break;
 
                     var go = AssetDatabase.LoadAssetAtPath(prefabPath, typeof(GameObject)) as GameObject;
 
@@ -71,6 +62,12 @@ namespace UnityUtils.Editor
             }
         }
 
+        [MenuItem(MenuName.Custom + "Find Missing Scripts")]
+        public static void FindMissingScripts()
+        {
+            GetWindow(typeof(FindMissingScriptsEditor));
+        }
+
         private static void FindInGo(GameObject go, string prefabName = "")
         {
             var components = go.GetComponents<Component>();
@@ -87,6 +84,7 @@ namespace UnityUtils.Editor
                         componentPath = parent.name + "/" + componentPath;
                         t = parent;
                     }
+
                     Debug.Log("Prefab " + prefabName + " has an empty script attached:\n" + componentPath, go);
                 }
 

@@ -10,13 +10,16 @@ namespace UnityUtils.Pooling
 
         private ObjectPool _pool;
 
+        private void OnValidate()
+        {
+            if (GetComponents<PooledMonoBehaviour>().Length > 1)
+                throw new InvalidOperationException($"{gameObject.name} has more than 1 {nameof(PooledMonoBehaviour)}");
+        }
+
         public GameObject GetPooledInstance()
         {
             // Couldn't do it on awake - what if when we need an instance when there is no instance out there? 
-            if (_pool == null)
-            {
-                _pool = ObjectPool.GetPoolFor(this, poolSize);
-            }
+            if (_pool == null) _pool = ObjectPool.GetPoolFor(this, poolSize);
 
             var toReturn = _pool.GetInstance();
             toReturn.GetComponent<PooledMonoBehaviour>()._pool = _pool;
@@ -37,14 +40,6 @@ namespace UnityUtils.Pooling
 
         protected virtual void OnReturnToPool()
         {
-        }
-
-        private void OnValidate()
-        {
-            if (GetComponents<PooledMonoBehaviour>().Length > 1)
-            {
-                throw new InvalidOperationException($"{gameObject.name} has more than 1 {nameof(PooledMonoBehaviour)}");
-            }
         }
     }
 }

@@ -7,16 +7,6 @@ namespace UnityUtils.PositionProviders
         [SerializeField] private float halfLength;
         [SerializeField] private float halfWidth;
 
-        public override Vector3 ProvideLocation()
-        {
-            var localPosition = transform.localPosition;
-            var x = localPosition.x + Random.Range(-halfWidth, halfWidth);
-            var z = localPosition.z + Random.Range(-halfLength, halfLength);
-            var targetPosition = new Vector3(x, localPosition.y, z);
-            targetPosition = transform.TransformPoint(targetPosition);
-            return targetPosition;
-        }
-
         private void OnDrawGizmosSelected()
         {
             var color = Gizmos.color;
@@ -39,6 +29,16 @@ namespace UnityUtils.PositionProviders
             Gizmos.DrawLine(botRight, topRight);
 
             Gizmos.color = color;
+        }
+
+        public override Vector3 ProvideLocation()
+        {
+            var localPosition = transform.localPosition;
+            var x = localPosition.x + Random.Range(-halfWidth, halfWidth);
+            var z = localPosition.z + Random.Range(-halfLength, halfLength);
+            var targetPosition = new Vector3(x, localPosition.y, z);
+            targetPosition = transform.TransformPoint(targetPosition);
+            return targetPosition;
         }
     }
 }

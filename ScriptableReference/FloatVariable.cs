@@ -15,9 +15,6 @@ namespace UnityUtils.ScriptableReference
 
         public float Value => value;
 
-        public static implicit operator float(FloatVariable variable)
-        {
-            return variable.Value;
-        }
+        public static implicit operator float(FloatVariable variable) => variable.Value;
     }
 }

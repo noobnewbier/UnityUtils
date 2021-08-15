@@ -4,10 +4,7 @@ namespace UnityUtils.BooleanProviders
     {
         private bool _isStateTrue;
 
-        public override bool ProvideBoolean()
-        {
-            return _isStateTrue;
-        }
+        public override bool ProvideBoolean() => _isStateTrue;
 
         public void SetState(bool currentState)
         {

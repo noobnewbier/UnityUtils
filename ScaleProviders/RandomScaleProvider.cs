@@ -7,13 +7,7 @@ namespace UnityUtils.ScaleProviders
         [SerializeField] private Vector3 maxScale;
         [SerializeField] private Vector3 minScale;
 
-        public override Vector3 ProvideScale()
-        {
-            return new Vector3(
-                Random.Range(minScale.x, maxScale.x),
-                Random.Range(minScale.y, maxScale.y),
-                Random.Range(minScale.z, maxScale.z)
-            );
-        }
+        public override Vector3 ProvideScale() =>
+            new Vector3(Random.Range(minScale.x, maxScale.x), Random.Range(minScale.y, maxScale.y), Random.Range(minScale.z, maxScale.z));
     }
 }

@@ -7,11 +7,6 @@ namespace UnityUtils.FloatProvider
         [SerializeField] private float maximum;
         [SerializeField] private float minimum;
 
-        public override float ProvideFloat()
-        {
-            return Random.Range(minimum, maximum);
-        }
-
         private void OnValidate()
         {
             if (minimum > maximum)
@@ -20,5 +15,7 @@ namespace UnityUtils.FloatProvider
                 minimum = maximum;
             }
         }
+
+        public override float ProvideFloat() => Random.Range(minimum, maximum);
     }
 }

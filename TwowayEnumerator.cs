@@ -24,10 +24,7 @@ namespace UnityUtils
 
         public bool MovePrevious()
         {
-            if (_index < 0)
-            {
-                return false;
-            }
+            if (_index < 0) return false;
 
             --_index;
             return true;
@@ -56,11 +53,7 @@ namespace UnityUtils
             get
             {
                 if (_index < 0 || _index >= _buffer.Count)
-                {
-                    throw new InvalidOperationException(
-                        "index out of bounds!: " + _index + ", Count: " + _buffer.Count
-                    );
-                }
+                    throw new InvalidOperationException("index out of bounds!: " + _index + ", Count: " + _buffer.Count);
 
                 return _buffer[_index];
             }

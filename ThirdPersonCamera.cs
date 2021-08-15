@@ -31,16 +31,8 @@ namespace UnityUtils
         private void SetCameraPosition(Transform targetTransform)
         {
             var selfTransform = transform;
-            selfTransform.position = Vector3.Lerp(
-                selfTransform.position,
-                targetTransform.position,
-                Time.fixedDeltaTime * smooth
-            );
-            selfTransform.forward = Vector3.Lerp(
-                selfTransform.forward,
-                targetTransform.forward,
-                Time.fixedDeltaTime * smooth
-            );
+            selfTransform.position = Vector3.Lerp(selfTransform.position, targetTransform.position, Time.fixedDeltaTime * smooth);
+            selfTransform.forward = Vector3.Lerp(selfTransform.forward, targetTransform.forward, Time.fixedDeltaTime * smooth);
         }
     }
 }

@@ -9,15 +9,11 @@ namespace UnityUtils
 {
     public class ObjectPool : MonoBehaviour
     {
-        private readonly Stack<PooledMonoBehaviour> _pool = new Stack<PooledMonoBehaviour>();
-
         [SerializeField] private PooledMonoBehaviour pooledMono;
         [Range(0, 10000)] [SerializeField] private int poolSize;
+        private readonly Stack<PooledMonoBehaviour> _pool = new Stack<PooledMonoBehaviour>();
 
-        public T GetInstance<T>() where T : PooledMonoBehaviour
-        {
-            return GetInstance().GetComponent<T>();
-        }
+        public T GetInstance<T>() where T : PooledMonoBehaviour => GetInstance().GetComponent<T>();
 
         public GameObject GetInstance()
         {
@@ -65,13 +61,8 @@ namespace UnityUtils
             {
                 var currentPool = existingPool.GetComponent<ObjectPool>();
 
-                if (currentPool.pooledMono == toPool)
-                {
-                    return currentPool;
-                }
-                throw new InvalidOperationException(
-                    $"Two pool should not have a same name, something has gone wrong for {toPool.name}'s pooling"
-                );
+                if (currentPool.pooledMono == toPool) return currentPool;
+                throw new InvalidOperationException($"Two pool should not have a same name, something has gone wrong for {toPool.name}'s pooling");
             }
 
             var pool = new GameObject().AddComponent<ObjectPool>();
@@ -87,9 +78,6 @@ namespace UnityUtils
             pooledMono = pooledMonoBehaviour;
         }
 
-        private static string GetPoolName(Object pooledObject)
-        {
-            return pooledObject.name + "Pool";
-        }
+        private static string GetPoolName(Object pooledObject) => pooledObject.name + "Pool";
     }
 }

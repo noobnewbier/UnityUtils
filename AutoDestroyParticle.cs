@@ -14,10 +14,7 @@ namespace UnityUtils
 
         private void Update()
         {
-            if (!_particleSystem.IsAlive())
-            {
-                Destroy(gameObject);
-            }
+            if (!_particleSystem.IsAlive()) Destroy(gameObject);
         }
     }
 }

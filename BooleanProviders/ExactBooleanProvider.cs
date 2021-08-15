@@ -8,9 +8,6 @@ namespace UnityUtils.BooleanProviders
         [FormerlySerializedAs("isActive")] [SerializeField]
         private bool boolean;
 
-        public override bool ProvideBoolean()
-        {
-            return boolean;
-        }
+        public override bool ProvideBoolean() => boolean;
     }
 }

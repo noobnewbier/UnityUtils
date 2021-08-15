@@ -11,16 +11,12 @@ namespace UnityUtils
                                                    T newValue,
                                                    IEqualityComparer<T> comparer = null)
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             comparer = comparer ?? EqualityComparer<T>.Default;
 
             foreach (var item in source)
-                yield return
-                    comparer.Equals(item, oldValue) ? newValue : item;
+                yield return comparer.Equals(item, oldValue) ? newValue : item;
         }
 
         //reference : https://stackoverflow.com/questions/3188693/how-can-i-get-linq-to-return-the-object-which-has-the-max-value-for-a-given-prop

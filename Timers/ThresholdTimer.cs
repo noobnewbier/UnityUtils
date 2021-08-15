@@ -19,6 +19,16 @@ namespace UnityUtils.Timers
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         public bool ResetInThisFrame => timer == 0f;
 
+        public void Reset()
+        {
+            timer = 0f;
+        }
+
+        private void Update()
+        {
+            Count();
+        }
+
         public void Init(float newThreshold, float currentTime = 0)
         {
             Init(newThreshold, false, currentTime);
@@ -27,11 +37,7 @@ namespace UnityUtils.Timers
         public virtual void Init(float newThreshold, [UsedImplicitly] bool forceInit, float currentTime = 0)
         {
             if (isInitialized && !forceInit)
-            {
-                throw new InvalidOperationException(
-                    $"timer in {gameObject.name} is already initialized, but is initialized again"
-                );
-            }
+                throw new InvalidOperationException($"timer in {gameObject.name} is already initialized, but is initialized again");
 
             timer = currentTime;
             threshold = newThreshold;
@@ -49,26 +55,12 @@ namespace UnityUtils.Timers
             return false;
         }
 
-        private void Update()
-        {
-            Count();
-        }
-
         protected virtual void Count()
         {
             if (!isInitialized)
-            {
-                throw new InvalidOperationException(
-                    $"timer in {gameObject.name} is not initialized"
-                );
-            }
+                throw new InvalidOperationException($"timer in {gameObject.name} is not initialized");
 
             timer += Time.deltaTime;
-        }
-
-        public void Reset()
-        {
-            timer = 0f;
         }
     }
 }

@@ -21,14 +21,14 @@ namespace UnityUtils
             }
         }
 
-        private void OnTriggerExit(Collider other)
+        private void OnCollisionExit(Collision collision)
         {
             foreach (var @delegate in delegates)
             {
                 if (@delegate == null) return;
 
-                if (@delegate is ITriggerExitDelegate triggerExitDelegate)
-                    triggerExitDelegate.OnTriggerExitCalled(other);
+                if (@delegate is ICollisionExitDelegate collisionStayDelegate)
+                    collisionStayDelegate.OnCollisionExitCalled(collision);
             }
         }
 
@@ -43,14 +43,14 @@ namespace UnityUtils
             }
         }
 
-        private void OnCollisionExit(Collision collision)
+        private void OnTriggerExit(Collider other)
         {
             foreach (var @delegate in delegates)
             {
                 if (@delegate == null) return;
 
-                if (@delegate is ICollisionExitDelegate collisionStayDelegate)
-                    collisionStayDelegate.OnCollisionExitCalled(collision);
+                if (@delegate is ITriggerExitDelegate triggerExitDelegate)
+                    triggerExitDelegate.OnTriggerExitCalled(other);
             }
         }
 
@@ -66,37 +66,24 @@ namespace UnityUtils
             {
                 if (!IsAssigned(delegates[i]))
                 {
-                    Debug.Log(
-                        $"{gameObject.name}'s collision bridge : delegate not assigned"
-                    );
+                    Debug.Log($"{gameObject.name}'s collision bridge : delegate not assigned");
 
                     return;
                 }
 
                 if (!IsValidDelegate(delegates[i]))
                 {
-                    Debug.Log(
-                        $"{gameObject.name}'s collision bridge :  {delegates[i].name} does not implement the necessary interface"
-                    );
+                    Debug.Log($"{gameObject.name}'s collision bridge :  {delegates[i].name} does not implement the necessary interface");
 
                     delegates[i] = null;
                 }
             }
         }
 
-        private static bool IsValidDelegate(MonoBehaviour mono)
-        {
-            return
-                mono is ICollisionEnterDelegate ||
-                mono is ICollisionStayDelegate ||
-                mono is ICollisionExitDelegate ||
-                mono is ITriggerExitDelegate;
-        }
+        private static bool IsValidDelegate(MonoBehaviour mono) =>
+            mono is ICollisionEnterDelegate || mono is ICollisionStayDelegate || mono is ICollisionExitDelegate || mono is ITriggerExitDelegate;
 
-        private static bool IsAssigned(MonoBehaviour mono)
-        {
-            return (object) mono != null;
-        }
+        private static bool IsAssigned(MonoBehaviour mono) => (object) mono != null;
     }
 
     public interface ICollisionEnterDelegate

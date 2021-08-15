@@ -25,12 +25,18 @@ namespace UnityUtils
         private int _head;
         private int _tail;
 
+        private int WrappedIndex
+        {
+            get
+            {
+                var index = _currentIndex % Capacity;
+                return index < 0 ? index + Capacity : index;
+            }
+        }
+
         public CircularBuffer(int capacity)
         {
-            if (capacity < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(capacity), "must be positive");
-            }
+            if (capacity < 0) throw new ArgumentOutOfRangeException(nameof(capacity), "must be positive");
 
             _buffer = new T[capacity];
             _head = capacity - 1;
@@ -42,15 +48,6 @@ namespace UnityUtils
             _head = buffer.Length - 1;
         }
 
-        private int WrappedIndex
-        {
-            get
-            {
-                var index = _currentIndex % Capacity;
-                return index < 0 ? index + Capacity : index;
-            }
-        }
-
         public int Count { get; private set; }
 
         public int Capacity
@@ -58,15 +55,9 @@ namespace UnityUtils
             get => _buffer.Length;
             set
             {
-                if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), "must be positive");
-                }
+                if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), "must be positive");
 
-                if (value == _buffer.Length)
-                {
-                    return;
-                }
+                if (value == _buffer.Length) return;
 
                 var buffer = new T[value];
                 var count = 0;
@@ -92,24 +83,15 @@ namespace UnityUtils
             _head = (_head + 1) % Capacity;
             var overwritten = _buffer[_head];
             _buffer[_head] = item;
-            if (Count == Capacity)
-            {
-                _tail = (_tail + 1) % Capacity;
-            }
-            else
-            {
-                ++Count;
-            }
+            if (Count == Capacity) _tail = (_tail + 1) % Capacity;
+            else ++Count;
 
             return overwritten;
         }
 
         public T Dequeue()
         {
-            if (Count == 0)
-            {
-                throw new InvalidOperationException("queue exhausted");
-            }
+            if (Count == 0) throw new InvalidOperationException("queue exhausted");
 
             var dequeued = _buffer[_tail];
             _buffer[_tail] = default;
@@ -140,18 +122,12 @@ namespace UnityUtils
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (Count == 0 || Capacity == 0)
-            {
-                yield break;
-            }
+            if (Count == 0 || Capacity == 0) yield break;
 
             for (var i = 0; i < Count; ++i)
                 yield return _buffer[i];
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

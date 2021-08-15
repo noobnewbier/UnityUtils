@@ -32,14 +32,8 @@ namespace UnityUtils.Editor
 
         private static void SetMode()
         {
-            if (_isToggled)
-            {
-                EditorApplication.playModeStateChanged += AutoSaveOnRun;
-            }
-            else
-            {
-                EditorApplication.playModeStateChanged -= AutoSaveOnRun;
-            }
+            if (_isToggled) EditorApplication.playModeStateChanged += AutoSaveOnRun;
+            else EditorApplication.playModeStateChanged -= AutoSaveOnRun;
         }
 
         private static void AutoSaveOnRun(PlayModeStateChange state)
