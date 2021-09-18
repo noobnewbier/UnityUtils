@@ -62,7 +62,9 @@ namespace UnityUtils
                 var currentPool = existingPool.GetComponent<ObjectPool>();
 
                 if (currentPool.pooledMono == toPool) return currentPool;
-                throw new InvalidOperationException($"Two pool should not have a same name, something has gone wrong for {toPool.name}'s pooling");
+                throw new InvalidOperationException(
+                    $"Two pool should not have a same name, something has gone wrong for {toPool.name}'s pooling"
+                );
             }
 
             var pool = new GameObject().AddComponent<ObjectPool>();

@@ -73,7 +73,9 @@ namespace UnityUtils
 
                 if (!IsValidDelegate(delegates[i]))
                 {
-                    Debug.Log($"{gameObject.name}'s collision bridge :  {delegates[i].name} does not implement the necessary interface");
+                    Debug.Log(
+                        $"{gameObject.name}'s collision bridge :  {delegates[i].name} does not implement the necessary interface"
+                    );
 
                     delegates[i] = null;
                 }
@@ -81,7 +83,10 @@ namespace UnityUtils
         }
 
         private static bool IsValidDelegate(MonoBehaviour mono) =>
-            mono is ICollisionEnterDelegate || mono is ICollisionStayDelegate || mono is ICollisionExitDelegate || mono is ITriggerExitDelegate;
+            mono is ICollisionEnterDelegate ||
+            mono is ICollisionStayDelegate ||
+            mono is ICollisionExitDelegate ||
+            mono is ITriggerExitDelegate;
 
         private static bool IsAssigned(MonoBehaviour mono) => (object) mono != null;
     }

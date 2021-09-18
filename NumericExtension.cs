@@ -8,7 +8,8 @@ namespace UnityUtils
         [SuppressMessage(
             "ReSharper",
             "CompareOfFloatsByEqualityOperator",
-            Justification = "The exact comparison is only used for edge cases where it is indeed the same, which makes comparison faster"
+            Justification =
+                "The exact comparison is only used for edge cases where it is indeed the same, which makes comparison faster"
         )]
         public static bool NearlyEqual(float a, float b, float epsilon = 0.005f)
         {
