@@ -6,7 +6,29 @@ namespace UnityUtils.Editor
 {
     public static class NonebGUIStyle
     {
-        private static readonly Lazy<Texture2D> SceneHelpBoxBackgroundTexture = new Lazy<Texture2D>(CreateBackgroundTexture);
+        private static readonly Lazy<Texture2D> SceneHelpBoxBackgroundTexture =
+            new Lazy<Texture2D>(
+                () => CreateBackgroundTexture(
+                    new Color(
+                        0.19f,
+                        0.19f,
+                        0.19f,
+                        0.65f
+                    )
+                )
+            );
+
+        private static readonly Lazy<Texture2D> SceneErrorBoxBackgroundTexture =
+            new Lazy<Texture2D>(
+                () => CreateBackgroundTexture(
+                    new Color(
+                        0.19f,
+                        0.19f,
+                        0.19f,
+                        0.35f
+                    )
+                )
+            );
 
         public static readonly GUIStyle Normal = EditorStyles.label;
 
@@ -31,7 +53,7 @@ namespace UnityUtils.Editor
             alignment = TextAnchor.MiddleCenter
         };
 
-        public static readonly GUIStyle SceneHelpBox = new GUIStyle(EditorStyles.helpBox)
+        public static readonly GUIStyle SceneHelpWindow = new GUIStyle(EditorStyles.helpBox)
         {
             normal = new GUIStyleState
             {
@@ -39,19 +61,21 @@ namespace UnityUtils.Editor
             }
         };
 
-        private static Texture2D CreateBackgroundTexture()
+        public static readonly GUIStyle SceneErrorBox = new GUIStyle(EditorStyles.helpBox)
+        {
+            normal = new GUIStyleState
+            {
+                background = SceneErrorBoxBackgroundTexture.Value,
+                textColor = Error.normal.textColor
+            },
+            alignment = TextAnchor.UpperLeft,
+            fontSize = EditorStyles.label.fontSize
+        };
+
+        private static Texture2D CreateBackgroundTexture(Color color)
         {
             var texture = new Texture2D(1, 1);
-            texture.SetPixel(
-                0,
-                0,
-                new Color(
-                    0.19f,
-                    0.19f,
-                    0.19f,
-                    0.65f
-                )
-            );
+            texture.SetPixel(0, 0, color);
             texture.Apply();
 
             return texture;
