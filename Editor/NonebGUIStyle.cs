@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace UnityUtils.Editor
 {
@@ -74,11 +75,39 @@ namespace UnityUtils.Editor
 
         private static Texture2D CreateBackgroundTexture(Color color)
         {
-            var texture = new Texture2D(1, 1);
+            var texture = new Texture2D(1, 1)
+            {
+                hideFlags = HideFlags.DontSaveInEditor
+            };
+
             texture.SetPixel(0, 0, color);
             texture.Apply();
 
             return texture;
+        }
+
+        [InitializeOnLoad]
+        private static class TemporaryAssetDestroyer
+        {
+            private static readonly bool IsEventRegistered;
+
+            static TemporaryAssetDestroyer()
+            {
+                if (!IsEventRegistered)
+                {
+                    EditorApplication.quitting += OnQuitting;
+                    IsEventRegistered = true;
+                }
+            }
+
+            private static void OnQuitting()
+            {
+                if (SceneHelpBoxBackgroundTexture.IsValueCreated)
+                    Object.DestroyImmediate(SceneHelpBoxBackgroundTexture.Value);
+
+                if (SceneErrorBoxBackgroundTexture.IsValueCreated)
+                    Object.DestroyImmediate(SceneErrorBoxBackgroundTexture.Value);
+            }
         }
     }
 }
