@@ -17,5 +17,17 @@ namespace UnityUtils.Editor
             var targetProperty = property.serializedObject.FindProperty(targetPath);
             return targetProperty?.objectReferenceValue as T;
         }
+
+        public static int FindPropertyIntInSameDepth(SerializedProperty property, string targetPropertyName)
+        {
+            var targetPath = targetPropertyName;
+            var objectPath = property.propertyPath;
+            var lastDotIndex = objectPath.LastIndexOf(".", StringComparison.Ordinal);
+            var isNestedProperty = lastDotIndex != -1;
+            if (isNestedProperty) targetPath = objectPath.Substring(0, lastDotIndex) + "." + targetPath;
+
+            var targetProperty = property.serializedObject.FindProperty(targetPath);
+            return targetProperty.intValue;
+        }
     }
 }

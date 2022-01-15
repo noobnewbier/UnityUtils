@@ -20,5 +20,21 @@ namespace UnityUtils.Editor
             );
             if (currentIndex != newIndex) property.stringValue = options[newIndex];
         }
+
+        public static int ShowStringPopup(Rect rect,
+                                          string currentValue,
+                                          string label,
+                                          string[] options)
+        {
+            var currentIndex = Array.IndexOf(options, currentValue);
+            var newIndex = EditorGUI.Popup(
+                rect,
+                label,
+                currentIndex,
+                options
+            );
+
+            return newIndex;
+        }
     }
 }
