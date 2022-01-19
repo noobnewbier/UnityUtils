@@ -1,0 +1,3 @@
+Useful for UI's anchors to corners
+
+https://forum.unity.com/threads/scripts-useful-4-6-scripts-collection.264161/?_ga=2.22308219.1106459180.1594889686-161583969.1592362190
