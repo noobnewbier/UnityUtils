@@ -36,5 +36,10 @@ namespace UnityUtils.Editor
 
             return newIndex;
         }
+
+        public static void ShowHorizontalLine()
+        {
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+        }
     }
 }
