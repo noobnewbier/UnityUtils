@@ -7,20 +7,25 @@ namespace UnityUtils.Editor
 {
     public static class NonebGUIStyle
     {
+        public static readonly Color HintTextColor = new(0.62f, 0.62f, 0.62f, 1f);
+        public static readonly Color ErrorTextColor = Color.red;
+
+        public static readonly Color SceneHelpBoxColor = new(
+            0.19f,
+            0.19f,
+            0.19f,
+            0.65f
+        );
+
         private static readonly Lazy<Texture2D> SceneHelpBoxBackgroundTexture =
-            new Lazy<Texture2D>(
+            new(
                 () => CreateBackgroundTexture(
-                    new Color(
-                        0.19f,
-                        0.19f,
-                        0.19f,
-                        0.65f
-                    )
+                    SceneHelpBoxColor
                 )
             );
 
         private static readonly Lazy<Texture2D> SceneErrorBoxBackgroundTexture =
-            new Lazy<Texture2D>(
+            new(
                 () => CreateBackgroundTexture(
                     new Color(
                         0.19f,
@@ -32,29 +37,29 @@ namespace UnityUtils.Editor
             );
 
         public static readonly GUIStyle Normal = EditorStyles.label;
-
-        public static readonly GUIStyle Error = new GUIStyle(EditorStyles.label)
+        
+        public static readonly GUIStyle Error = new(EditorStyles.label)
         {
             normal = new GUIStyleState
             {
-                textColor = Color.red
+                textColor = ErrorTextColor
             }
         };
 
-        public static readonly GUIStyle Hint = new GUIStyle(EditorStyles.label)
+        public static readonly GUIStyle Hint = new(EditorStyles.label)
         {
             normal = new GUIStyleState
             {
-                textColor = new Color(0.62f, 0.62f, 0.62f)
+                textColor = HintTextColor
             }
         };
 
-        public static readonly GUIStyle Title = new GUIStyle(EditorStyles.whiteLabel)
+        public static readonly GUIStyle Title = new(EditorStyles.whiteLabel)
         {
             alignment = TextAnchor.MiddleCenter
         };
 
-        public static readonly GUIStyle SceneHelpWindow = new GUIStyle(EditorStyles.helpBox)
+        public static readonly GUIStyle SceneHelpWindow = new(EditorStyles.helpBox)
         {
             normal = new GUIStyleState
             {
@@ -62,7 +67,7 @@ namespace UnityUtils.Editor
             }
         };
 
-        public static readonly GUIStyle SceneErrorBox = new GUIStyle(EditorStyles.helpBox)
+        public static readonly GUIStyle SceneErrorBox = new(EditorStyles.helpBox)
         {
             normal = new GUIStyleState
             {
