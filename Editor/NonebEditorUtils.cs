@@ -5,7 +5,14 @@ namespace UnityUtils.Editor
 {
     public static class NonebEditorUtils
     {
-        public static T? FindPropertyObjectReferenceInSameDepth<T>(SerializedProperty property, string targetPropertyName)
+        public static string GetPropertyBindingPath(string propertyName)
+        {
+            return $"<{propertyName}>k__BackingField";
+        }
+
+        public static T? FindPropertyObjectReferenceInSameDepth<T>(
+            SerializedProperty property,
+            string targetPropertyName)
             where T : class
         {
             var targetPath = targetPropertyName;
