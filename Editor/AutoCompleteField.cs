@@ -15,56 +15,46 @@ namespace UnityUtils.Editor
     /// </summary>
     public class AutoCompleteField
     {
-        private static class Styles
-        {
-            public const float ResultHeight = 20f;
-            public const float ResultsBorderWidth = 2f;
-            public const float ResultsMargin = 15f;
-            public const float ResultsLabelOffset = 2f;
-
-            public static readonly GUIStyle EntryEven;
-            public static readonly GUIStyle EntryOdd;
-            public static readonly GUIStyle LabelStyle;
-            public static readonly GUIStyle ResultsBorderStyle;
-
-            static Styles()
-            {
-                EntryOdd = new GUIStyle("CN EntryBackOdd");
-                EntryEven = new GUIStyle("CN EntryBackEven");
-                ResultsBorderStyle = new GUIStyle("hostview");
-
-                LabelStyle = new GUIStyle(EditorStyles.label)
-                {
-                    alignment = TextAnchor.MiddleLeft,
-                    richText = true
-                };
-            }
-        }
+        private readonly List<string> _candidates = new();
+        private readonly string _label;
+        private readonly Action<string>? _onConfirmCallback;
 
         private readonly Action<string>? _onInputChangedCallback;
-        private readonly Action<string>? _onConfirmCallback;
         private readonly Func<IEnumerable<string>> _optionsFactory;
+
+        private readonly SearchField _searchField;
         private bool _isOptionValid;
         private List<string> _options = new();
+
+        private Vector2 _previousMousePosition;
+        private int _selectedIndex = -1;
+        private bool _selectedIndexByMouse;
+
+        private bool _shouldDrawCandidates;
         private string _value;
 
-        public AutoCompleteField(SerializedProperty property,
+        public AutoCompleteField(
+            SerializedProperty property,
             Func<IEnumerable<string>> optionsFactory,
-            Action<string>? onValueChangedCallback = null) : this(s =>
+            Action<string>? onValueChangedCallback = null) : this(
+            s =>
             {
                 property.stringValue = s;
                 property.serializedObject.ApplyModifiedProperties();
                 onValueChangedCallback?.Invoke(s);
-            }, s =>
+            },
+            s =>
             {
                 property.serializedObject.ApplyModifiedProperties();
                 onValueChangedCallback?.Invoke(s);
             },
             optionsFactory,
             property.displayName,
-            property.stringValue) { }
+            property.stringValue
+        ) { }
 
-        private AutoCompleteField(Action<string>? onInputChangedCallback,
+        public AutoCompleteField(
+            Action<string>? onInputChangedCallback,
             Action<string>? onConfirmCallback,
             Func<IEnumerable<string>> optionsFactory,
             string label,
@@ -82,24 +72,17 @@ namespace UnityUtils.Editor
 
         private static int MaxResults => 15;
 
-        private readonly List<string> _candidates = new();
-        private int _selectedIndex = -1;
-
-        private readonly SearchField _searchField;
-
-        private Vector2 _previousMousePosition;
-        private bool _selectedIndexByMouse;
-
-        private bool _shouldDrawCandidates;
-        private readonly string _label;
-
         public void OnGUI()
         {
-            var rect = GUILayoutUtility.GetRect(1, 1, 18, 18, GUILayout.ExpandWidth(true));
-
+            Rect rect;
             using (new GUILayout.HorizontalScope())
             {
-                rect = EditorGUI.PrefixLabel(rect, new GUIContent(_label));
+                rect = GUILayoutUtility.GetRect(new GUIContent(string.Empty), GUI.skin.button, GUILayout.ExpandWidth(true));
+                using (new NonebEditorUtils.EditorLabelWidthScope(_label))
+                {
+                    rect = EditorGUI.PrefixLabel(rect, new GUIContent(_label), EditorStyles.label);
+                }
+
                 DoSearchField(rect);
             }
 
@@ -223,7 +206,7 @@ namespace UnityUtils.Editor
             {
                 _shouldDrawCandidates = false;
             }
-            
+
             if (current.type == EventType.KeyUp && current.keyCode == KeyCode.Escape)
             {
                 _shouldDrawCandidates = false;
@@ -390,6 +373,32 @@ namespace UnityUtils.Editor
 
             // Return the computed edit distance
             return rows[curRow][m];
+        }
+
+        private static class Styles
+        {
+            public const float ResultHeight = 20f;
+            public const float ResultsBorderWidth = 2f;
+            public const float ResultsMargin = 15f;
+            public const float ResultsLabelOffset = 2f;
+
+            public static readonly GUIStyle EntryEven;
+            public static readonly GUIStyle EntryOdd;
+            public static readonly GUIStyle LabelStyle;
+            public static readonly GUIStyle ResultsBorderStyle;
+
+            static Styles()
+            {
+                EntryOdd = new GUIStyle("CN EntryBackOdd");
+                EntryEven = new GUIStyle("CN EntryBackEven");
+                ResultsBorderStyle = new GUIStyle("hostview");
+
+                LabelStyle = new GUIStyle(EditorStyles.label)
+                {
+                    alignment = TextAnchor.MiddleLeft,
+                    richText = true
+                };
+            }
         }
     }
 }

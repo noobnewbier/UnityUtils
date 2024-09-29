@@ -15,26 +15,49 @@ namespace UnityUtils.Editor
             string targetPropertyName)
             where T : class
         {
-            var targetPath = targetPropertyName;
-            var objectPath = property.propertyPath;
-            var lastDotIndex = objectPath.LastIndexOf(".", StringComparison.Ordinal);
-            var isNestedProperty = lastDotIndex != -1;
-            if (isNestedProperty) targetPath = objectPath.Substring(0, lastDotIndex) + "." + targetPath;
+            var targetProperty = FindPropertyInSameDepth(property, targetPropertyName);
+            if (targetProperty == null)
+            {
+                Debug.LogError("Cannot find property with the given path, likely unintended!");
+                return null;
+            }
 
-            var targetProperty = property.serializedObject.FindProperty(targetPath);
-            return targetProperty?.objectReferenceValue as T;
+            return targetProperty.objectReferenceValue as T;
         }
 
         public static int FindPropertyIntInSameDepth(SerializedProperty property, string targetPropertyName)
         {
-            var targetPath = targetPropertyName;
-            var objectPath = property.propertyPath;
-            var lastDotIndex = objectPath.LastIndexOf(".", StringComparison.Ordinal);
-            var isNestedProperty = lastDotIndex != -1;
-            if (isNestedProperty) targetPath = objectPath.Substring(0, lastDotIndex) + "." + targetPath;
+            var targetProperty = FindPropertyInSameDepth(property, targetPropertyName);
+            if (targetProperty == null)
+            {
+                Debug.LogError("Cannot find property with the given path, likely unintended!");
+                return 0;
+            }
 
-            var targetProperty = property.serializedObject.FindProperty(targetPath);
             return targetProperty.intValue;
+        }
+
+        private static SerializedProperty? FindPropertyInSameDepth(SerializedProperty property, string targetPropertyName)
+        {
+            var fieldProperty = DoFindProperty(targetPropertyName);
+            if (fieldProperty != null) return fieldProperty;
+
+            var propertyBindingPath = GetPropertyBindingPath(targetPropertyName);
+            var propertyBackingFieldProperty = DoFindProperty(propertyBindingPath);
+
+            return propertyBackingFieldProperty;
+
+            SerializedProperty? DoFindProperty(string propName)
+            {
+                var targetPath = propName;
+                var objectPath = property.propertyPath;
+                var lastDotIndex = objectPath.LastIndexOf(".", StringComparison.Ordinal);
+                var isNestedProperty = lastDotIndex != -1;
+                if (isNestedProperty) targetPath = objectPath[..lastDotIndex] + "." + targetPath;
+
+                var targetProperty = property.serializedObject.FindProperty(targetPath);
+                return targetProperty;
+            }
         }
 
         /// <summary>
@@ -104,6 +127,47 @@ namespace UnityUtils.Editor
             }
 
             ~AssetDatabaseEditingScope()
+            {
+                DoDispose(false);
+            }
+        }
+
+        public class EditorLabelWidthScope : IDisposable
+        {
+            private readonly float _cacheLabelWidth;
+            private bool _disposed;
+
+            public EditorLabelWidthScope(string targetLabel) : this(EditorStyles.label.CalcSize(new GUIContent(targetLabel)).x) { }
+
+            public EditorLabelWidthScope(float targetWidth)
+            {
+                _cacheLabelWidth = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = targetWidth;
+            }
+
+            public void Dispose()
+            {
+                DoDispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void DoDispose(bool disposing)
+            {
+                if (_disposed)
+                    return;
+
+                if (disposing)
+                    CloseScope();
+
+                _disposed = true;
+            }
+
+            private void CloseScope()
+            {
+                EditorGUIUtility.labelWidth = _cacheLabelWidth;
+            }
+
+            ~EditorLabelWidthScope()
             {
                 DoDispose(false);
             }
