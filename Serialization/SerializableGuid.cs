@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace UnityUtils.SerializableGuid
+namespace UnityUtils.Serialization
 {
     [Serializable]
     public struct SerializableGuid : ISerializationCallbackReceiver
