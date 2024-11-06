@@ -11,7 +11,7 @@ namespace UnityUtils
             Justification =
                 "The exact comparison is only used for edge cases where it is indeed the same, which makes comparison faster"
         )]
-        public static bool NearlyEqual(float a, float b, float epsilon = 0.005f)
+        public static bool NearlyEqual(this float a, float b, float epsilon = 0.005f)
         {
             var absA = Mathf.Abs(a);
             var absB = Mathf.Abs(b);
