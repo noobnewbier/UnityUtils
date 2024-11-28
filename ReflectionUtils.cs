@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 
 namespace UnityUtils
 {
+    [InitializeOnLoad]
     public static class ReflectionUtils
     {
+        static ReflectionUtils()
+        {
+            IsSameOrSubClassCache.Clear();
+        }
+
         public static IEnumerable<MethodInfo> GetMethodsByAttribute(Type type, Type attributeType)
         {
             if (!attributeType.IsSubclassOf(typeof(Attribute)))
@@ -81,6 +88,101 @@ namespace UnityUtils
             }
 
             return attributes.FirstOrDefault();
+        }
+
+        public static bool IsSameOrSubclass(this Type potentialDescendant, Type? potentialBase) => IsSameOrSubClassCache.Check(potentialDescendant, potentialBase);
+
+        /// <summary>
+        ///     Checking if a type is a subclass of a generic type.
+        /// </summary>
+        public static bool IsSubclassOfGeneric(this Type? t, Type genericType)
+        {
+            if (t == genericType)
+                //Only check for subclass!
+                return false;
+
+            if (genericType is { IsGenericTypeDefinition: false, IsGenericType: false }) return false;
+
+            //Ref: https://stackoverflow.com/a/457708
+            while (t != null && t != typeof(object))
+            {
+                var cur = t.IsGenericType ?
+                    t.GetGenericTypeDefinition() :
+                    t;
+                if (genericType == cur) return true;
+                t = t.BaseType;
+            }
+
+            return false;
+        }
+
+        private static class IsSameOrSubClassCache
+        {
+            private static readonly Dictionary<Type, SubClassCache> Cache = new();
+
+            public static bool Check(Type potentialDescendant, Type? potentialBase)
+            {
+                if (potentialBase == null) return false;
+
+                if (!Cache.TryGetValue(potentialBase, out var subClassCache)) Cache[potentialBase] = subClassCache = new SubClassCache();
+
+                if (!subClassCache.TryGet(potentialDescendant, out var result))
+                {
+                    result = potentialDescendant == potentialBase
+                             || potentialDescendant.IsSubclassOf(potentialBase)
+                             || potentialDescendant.IsSubclassOfGeneric(potentialBase);
+
+                    subClassCache.SetCache(potentialDescendant, result);
+                }
+
+                return result;
+            }
+
+            public static void Clear()
+            {
+                Cache.Clear();
+            }
+
+            //TODO: this seems to slow things down -> we might need to give objects a bigger capacity initially so it doesn't keep doubling
+            private class SubClassCache
+            {
+                private readonly HashSet<Type> _knownNonSubTypes = new();
+                private readonly HashSet<Type> _knownSubTypes = new();
+
+                public void SetCache(Type? type, bool isSubType)
+                {
+                    if (type == null) return;
+
+                    if (isSubType)
+                        _knownSubTypes.Add(type);
+                    else
+                        _knownNonSubTypes.Add(type);
+                }
+
+                public bool TryGet(Type? potentialDescendant, out bool result)
+                {
+                    if (potentialDescendant == null)
+                    {
+                        result = false;
+                        return true;
+                    }
+
+                    if (_knownSubTypes.Contains(potentialDescendant))
+                    {
+                        result = true;
+                        return true;
+                    }
+
+                    if (_knownNonSubTypes.Contains(potentialDescendant))
+                    {
+                        result = false;
+                        return true;
+                    }
+
+                    result = false;
+                    return false;
+                }
+            }
         }
     }
 }
