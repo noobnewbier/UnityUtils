@@ -1,83 +1,17 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using Object = UnityEngine.Object;
 
 namespace UnityUtils.Editor
 {
-    public static class NonebEditorUtils
+    public static partial class NonebEditorUtils
     {
-        /// <summary>
-        /// I really can't be asked to do reflection just to get that, if future me really want to look, go check
-        /// UnityEditor.IMGUI.Controls.TreeViewGUI.cs
-        /// </summary>
-        public static float FoldoutIconWidth
-        {
-            get
-            {
-                const float foldoutIconWidth = 11f;
-                const float padding = 3f;
-
-                return foldoutIconWidth + padding;
-            }
-        }
-
-        public static bool CanShowInOneLine(this Type type) =>
-            type.IsPrimitive ||
-            type.IsEnum ||
-            type == typeof(string) ||
-            type == typeof(Color) ||
-            type == typeof(AnimationCurve) ||
-            type == typeof(Gradient) ||
-            type.IsSameOrSubclass(typeof(Object)) ||
-            type.IsSameOrSubclass(typeof(Addressables));
-
         public static string GetPropertyBindingPath(string propertyName) => $"<{propertyName}>k__BackingField";
-
-        public static Rect ShiftRect(Rect a, Rect b) => ShiftRect(a, b.xMin - a.xMin + b.width);
-
-        public static Rect ShiftRect(Rect rect, float shiftInX)
-        {
-            const float padding = 2;
-            var toReturn = rect;
-            toReturn.width -= shiftInX + padding;
-            toReturn.x += shiftInX + padding;
-
-            return toReturn;
-        }
-
-        /// <summary>
-        /// EditorGUI.PropertyField but also drawing the foldout to group them up.
-        /// </summary>
-        public static Rect DrawDefaultPropertyWithFoldout(Rect position, SerializedProperty property, GUIContent label)
-        {
-            var foldoutRect = position;
-            foldoutRect.height = EditorGUIUtility.singleLineHeight;
-            foldoutRect.width = EditorGUIUtility.labelWidth;
-            property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, label);
-            if (!property.isExpanded) return position;
-
-            var fieldRect = foldoutRect;
-            fieldRect.y = foldoutRect.y + EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight;
-
-            //Keep the unindented one to return.
-            position = fieldRect;
-
-            using (new EditorGUI.IndentLevelScope())
-            {
-                fieldRect = EditorGUI.IndentedRect(fieldRect);
-
-                EditorGUI.PropertyField(fieldRect, property, true);
-            }
-
-            return position;
-        }
 
         public static SerializedProperty? FindParentProperty(this SerializedProperty property)
         {
@@ -86,19 +20,36 @@ namespace UnityUtils.Editor
 
             var parentSerializedProperty = property.serializedObject.FindProperty(propertyPaths.First());
             for (var index = 1; index < propertyPaths.Length - 1; index++)
-                if (propertyPaths[index] == "Array" && propertyPaths.Length > index + 1 && Regex.IsMatch(propertyPaths[index + 1], "^data\\[\\d+\\]$"))
+            {
+                if (propertyPaths[index] == "Array")
                 {
-                    var match = Regex.Match(propertyPaths[index + 1], "^data\\[(\\d+)\\]$");
-                    var arrayIndex = int.Parse(match.Groups[1].Value);
-                    parentSerializedProperty = parentSerializedProperty.GetArrayElementAtIndex(arrayIndex);
-                    index++;
+                    if (index + 1 == propertyPaths.Length - 1)
+                        // reached the end
+                        break;
+
+                    if (propertyPaths.Length > index + 1 && Regex.IsMatch(propertyPaths[index + 1], "^data\\[\\d+\\]$"))
+                    {
+                        var match = Regex.Match(propertyPaths[index + 1], "^data\\[(\\d+)\\]$");
+                        var arrayIndex = int.Parse(match.Groups[1].Value);
+                        parentSerializedProperty = parentSerializedProperty.GetArrayElementAtIndex(arrayIndex);
+                        index++;
+                    }
                 }
                 else
                 {
                     parentSerializedProperty = parentSerializedProperty.FindPropertyRelative(propertyPaths[index]);
                 }
+            }
 
             return parentSerializedProperty;
+        }
+
+        public static bool IsArrayElement(this SerializedProperty property)
+        {
+            var parent = property.FindParentProperty()?.FindParentProperty();
+            if (parent == null) return false;
+
+            return parent.isArray;
         }
 
         public static T? GetEnumValueFromProperty<T>(this SerializedProperty property) where T : Enum
@@ -486,36 +437,6 @@ namespace UnityUtils.Editor
             }
         }
 
-        /// <summary>
-        ///     Getting the element type within an array or a list. This assumes the given type <paramref name="t" /> is an array
-        /// or a list.
-        /// </summary>
-        public static Type? GetTypeWithinCollection(this Type t)
-        {
-            if (t.IsArray) return t.GetElementType();
-
-            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>)) return t.GetGenericArguments()[0];
-
-            Debug.LogError($"Type({t}) is not a List<> or array - couldn't retrieve the type within it!");
-            return null;
-        }
-
-        /// <summary>
-        ///     <see cref="Type.GetField(string)" /> but also looking from its base type recursively as well.
-        /// <see cref="BindingFlags" /> includes non public field by default, as that's usually what I expect when working with
-        /// type hierarchy.
-        /// </summary>
-        public static FieldInfo? GetFieldIncludingParents(
-            this Type type,
-            string fieldName,
-            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-        {
-            var fi = type.GetField(fieldName, bindingFlags);
-            if (fi != null) return fi;
-
-            var baseType = type.BaseType;
-            return baseType?.GetField(fieldName, bindingFlags);
-        }
 
         public static T? FindPropertyObjectReferenceInSameDepth<T>(
             SerializedProperty property,
@@ -564,119 +485,6 @@ namespace UnityUtils.Editor
 
                 var targetProperty = property.serializedObject.FindProperty(targetPath);
                 return targetProperty;
-            }
-        }
-
-        /// <summary>
-        /// Note: this includes sub-asset!
-        /// </summary>
-        public static IEnumerable<T> LoadAllAssetsInFolder<T>(string folderPath) where T : Object
-        {
-            var assets = AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { folderPath });
-            foreach (var guid in assets)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-
-                yield return asset;
-            }
-            //todo: combine
-        }
-
-        public static IEnumerable<T> LoadAllMainAssetsInFolder<T>(string folderPath) where T : Object
-        {
-            var assets = AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { folderPath });
-            foreach (var guid in assets)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-                if (AssetDatabase.IsValidFolder(path)) continue;
-
-                if (!AssetDatabase.IsMainAsset(asset)) continue;
-
-                yield return asset;
-            }
-        }
-
-        public static IEnumerable<Object> LoadAllMainAssetsInFolder(string folderPath) => LoadAllAssetsInFolder<Object>(folderPath);
-
-        public static string ToProjectRelativePath(this string path) => path.Replace(Application.dataPath[..^6], string.Empty);
-
-        public class AssetDatabaseEditingScope : IDisposable
-        {
-            private bool _disposed;
-
-            public AssetDatabaseEditingScope()
-            {
-                AssetDatabase.StartAssetEditing();
-            }
-
-            public void Dispose()
-            {
-                DoDispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            private void DoDispose(bool disposing)
-            {
-                if (_disposed)
-                    return;
-
-                if (disposing)
-                    CloseScope();
-
-                _disposed = true;
-            }
-
-            private static void CloseScope()
-            {
-                AssetDatabase.StopAssetEditing();
-            }
-
-            ~AssetDatabaseEditingScope()
-            {
-                DoDispose(false);
-            }
-        }
-
-        public class EditorLabelWidthScope : IDisposable
-        {
-            private readonly float _cacheLabelWidth;
-            private bool _disposed;
-
-            public EditorLabelWidthScope(string targetLabel) : this(EditorStyles.label.CalcSize(new GUIContent(targetLabel)).x) { }
-
-            public EditorLabelWidthScope(float targetWidth)
-            {
-                _cacheLabelWidth = EditorGUIUtility.labelWidth;
-                EditorGUIUtility.labelWidth = targetWidth;
-            }
-
-            public void Dispose()
-            {
-                DoDispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            private void DoDispose(bool disposing)
-            {
-                if (_disposed)
-                    return;
-
-                if (disposing)
-                    CloseScope();
-
-                _disposed = true;
-            }
-
-            private void CloseScope()
-            {
-                EditorGUIUtility.labelWidth = _cacheLabelWidth;
-            }
-
-            ~EditorLabelWidthScope()
-            {
-                DoDispose(false);
             }
         }
     }

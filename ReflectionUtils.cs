@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace UnityUtils
 {
@@ -80,6 +81,37 @@ namespace UnityUtils
             if (attributes.Length > 1) throw new InvalidOperationException($"More than one matching attributes {target}");
 
             return attributes.FirstOrDefault();
+        }
+
+        /// <summary>
+        ///     Getting the element type within an array or a list. This assumes the given type <paramref name="t" /> is an array
+        /// or a list.
+        /// </summary>
+        public static Type? GetTypeWithinCollection(this Type t)
+        {
+            if (t.IsArray) return t.GetElementType();
+
+            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>)) return t.GetGenericArguments()[0];
+
+            Debug.LogError($"Type({t}) is not a List<> or array - couldn't retrieve the type within it!");
+            return null;
+        }
+
+        /// <summary>
+        ///     <see cref="Type.GetField(string)" /> but also looking from its base type recursively as well.
+        /// <see cref="BindingFlags" /> includes non public field by default, as that's usually what I expect when working with
+        /// type hierarchy.
+        /// </summary>
+        public static FieldInfo? GetFieldIncludingParents(
+            this Type type,
+            string fieldName,
+            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        {
+            var fi = type.GetField(fieldName, bindingFlags);
+            if (fi != null) return fi;
+
+            var baseType = type.BaseType;
+            return baseType?.GetField(fieldName, bindingFlags);
         }
 
         public static bool IsSameOrSubclass(this Type potentialDescendant, Type? potentialBase) => IsSameOrSubClassCache.Check(potentialDescendant, potentialBase);
