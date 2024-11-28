@@ -16,12 +16,12 @@ namespace UnityUtils.Editor
             var fileExtension = Path.GetExtension(AssetDatabase.GetAssetPath(Selection.activeObject));
             Debug.Assert(fileName != null, nameof(fileName) + " != null");
 
-            fileName = fileName.Split('.')[0];
+            fileName = fileName!.Split('.')[0];
             var copiedFilePath = directoryPath + Path.DirectorySeparatorChar + fileName + "_Reversed" + fileExtension;
 
             AssetDatabase.CopyAsset(AssetDatabase.GetAssetPath(Selection.activeObject), copiedFilePath);
 
-            var clip = (AnimationClip) AssetDatabase.LoadAssetAtPath(copiedFilePath, typeof(AnimationClip));
+            var clip = (AnimationClip)AssetDatabase.LoadAssetAtPath(copiedFilePath, typeof(AnimationClip));
 
             if (clip == null) return;
 
@@ -69,7 +69,7 @@ namespace UnityUtils.Editor
         [MenuItem("Assets/Create Reversed Clip", true)]
         private static bool ReverseClipValidation() => Selection.activeObject is AnimationClip;
 
-        public static AnimationClip GetSelectedClip()
+        public static AnimationClip? GetSelectedClip()
         {
             var clips = Selection.GetFiltered(typeof(AnimationClip), SelectionMode.Assets);
             if (clips.Length > 0) return clips[0] as AnimationClip;

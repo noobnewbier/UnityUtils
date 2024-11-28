@@ -12,14 +12,14 @@ namespace UnityUtils.Editor
 
     public class ReplaceGameObjects : ScriptableWizard
     {
-        public GameObject newType;
-        public GameObject[] oldObjects;
+        public GameObject newType = null!;
+        public GameObject[] oldObjects = null!;
 
         private void OnWizardCreate()
         {
             foreach (var go in oldObjects)
             {
-                var newObject = (GameObject) PrefabUtility.InstantiatePrefab(newType);
+                var newObject = (GameObject)PrefabUtility.InstantiatePrefab(newType);
                 newObject.transform.position = go.transform.position;
                 newObject.transform.rotation = go.transform.rotation;
                 newObject.transform.parent = go.transform.parent;
