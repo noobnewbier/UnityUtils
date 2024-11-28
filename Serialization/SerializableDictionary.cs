@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
-using UnityEditor;
 #endif
 
 namespace UnityUtils.Serialization
@@ -82,7 +81,7 @@ namespace UnityUtils.Serialization
         [SerializeField] private List<SerializableKvPair> invalidKvPairs = new();
 
         [Serializable]
-        private class SerializableKvPair
+        public class SerializableKvPair
         {
             [field: SerializeField] public TK Key { get; private set; }
             [field: SerializeField] public TV Value { get; set; }
@@ -164,54 +163,4 @@ namespace UnityUtils.Serialization
 
         #endregion
     }
-
-#if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(SerializableDictionary<,>))]
-    public class SerializableDictionaryDrawer : PropertyDrawer
-    {
-        private const string DuplicateKeyErrorMessage = "Duplicated Keys! You must resolve them for a valid dictionary";
-        private SerializedProperty _invalidPairsProp;
-        private SerializedProperty _validPairsProp;
-
-        private void FindProperties(SerializedProperty property)
-        {
-            _validPairsProp = property.FindPropertyRelative("validKvPairs");
-            _invalidPairsProp = property.FindPropertyRelative("invalidKvPairs");
-        }
-
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            FindProperties(property);
-
-            EditorGUI.PropertyField(position, _validPairsProp, label);
-            if (_invalidPairsProp.arraySize <= 0) return;
-
-            position.y += EditorGUI.GetPropertyHeight(_validPairsProp, true);
-            using (new EditorGUI.IndentLevelScope())
-            {
-                var helpBoxRect = position;
-                helpBoxRect.height = GetHelpBoxHeight();
-                EditorGUI.HelpBox(helpBoxRect, DuplicateKeyErrorMessage, MessageType.Error);
-
-                position.y += helpBoxRect.height;
-                EditorGUI.PropertyField(position, _invalidPairsProp, new GUIContent("Duplicated Key"));
-            }
-        }
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            FindProperties(property);
-
-            var height = EditorGUI.GetPropertyHeight(_validPairsProp, true);
-            if (_invalidPairsProp.arraySize <= 0) return height;
-
-            height += GetHelpBoxHeight();
-            height += EditorGUI.GetPropertyHeight(_invalidPairsProp, true);
-
-            return height;
-        }
-
-        private static float GetHelpBoxHeight() => EditorGUIUtility.standardVerticalSpacing * EditorGUIUtility.singleLineHeight;
-    }
-#endif
 }
