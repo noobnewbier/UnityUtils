@@ -33,7 +33,22 @@ namespace UnityUtils.Editor
             FindProperties(property);
             if (!IsKeyCompact)
             {
-                EditorGUI.PropertyField(position, property, label, true);
+                //Need to draw child manually otherwise indentation isn't right.
+                position.height = EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(position, property, label);
+                if (property.isExpanded)
+                    using (new EditorGUI.IndentLevelScope())
+                    {
+                        position = EditorGUI.IndentedRect(position);
+
+                        position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                        position.height = EditorGUIUtility.singleLineHeight;
+                        EditorGUI.PropertyField(position, _keyProperty, true);
+
+                        position.y += EditorGUI.GetPropertyHeight(_keyProperty, true);
+                        position.height = EditorGUIUtility.singleLineHeight;
+                        EditorGUI.PropertyField(position, _valueProperty, true);
+                    }
 
                 return;
             }
@@ -54,9 +69,13 @@ namespace UnityUtils.Editor
                 using (new EditorGUI.IndentLevelScope())
                 {
                     var valueRect = EditorGUI.IndentedRect(position);
-                    valueRect.y += EditorGUIUtility.singleLineHeight;
-                    valueRect.height -= EditorGUIUtility.singleLineHeight;
-                    EditorGUI.PropertyField(valueRect, _valueProperty, new GUIContent(_valueProperty.displayName));
+                    valueRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                    valueRect.height = EditorGUIUtility.singleLineHeight;
+
+                    if (_valueProperty.HasCustomPropertyDrawer())
+                        EditorGUI.PropertyField(valueRect, _valueProperty, new GUIContent(_valueProperty.displayName));
+                    else
+                        NonebEditorUtils.DrawDefaultPropertyWithoutFoldout(valueRect, _valueProperty);
                 }
         }
 
@@ -65,7 +84,13 @@ namespace UnityUtils.Editor
         {
             FindProperties(property);
             if (!IsKeyCompact) return EditorGUI.GetPropertyHeight(property, label, true);
-            if (_valueProperty.isExpanded) return EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing + EditorGUI.GetPropertyHeight(_valueProperty, new GUIContent("Value"));
+            if (_valueProperty.isExpanded)
+            {
+                if (_valueProperty.HasCustomPropertyDrawer()) return EditorGUI.GetPropertyHeight(_valueProperty, new GUIContent("Value")) + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                //Reduce height by one line as it's eaten by the shared foldout by top level
+                return NonebEditorUtils.GetDefaultPropertyDrawerWithoutHeight(property) - EditorGUIUtility.singleLineHeight - EditorGUIUtility.standardVerticalSpacing;
+            }
 
             return EditorGUIUtility.singleLineHeight;
         }

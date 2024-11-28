@@ -22,7 +22,8 @@ namespace UnityUtils.Editor
         {
             FindProperties(property);
 
-            EditorGUI.PropertyField(position, _validPairsProp, label);
+            position.height = EditorGUIUtility.singleLineHeight;
+            EditorGUI.PropertyField(position, _validPairsProp, label, true);
             if (_invalidPairsProp.arraySize <= 0) return;
 
             position.y += EditorGUI.GetPropertyHeight(_validPairsProp, true);
