@@ -22,7 +22,8 @@ namespace UnityUtils
             return type.GetMethods().Where(m => m.GetCustomAttribute(attributeType, false) != null);
         }
 
-        public static IEnumerable<FieldInfo> GetFieldsByAttribute(Type type,
+        public static IEnumerable<FieldInfo> GetFieldsByAttribute(
+            Type type,
             Type attributeType,
             bool searchInheritance = false)
         {
@@ -34,24 +35,20 @@ namespace UnityUtils
         }
 
         public static IEnumerable<(Type type, T attachedAttribute)> GetTypesWithAttribute<T>(
-            bool searchInheritance = false) where T : Attribute
-        {
-            return from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                let attribute = type.GetCustomAttribute<T>(searchInheritance)
-                where attribute != null
-                select (type, attribute);
-        }
+            bool searchInheritance = false) where T : Attribute =>
+            from assembly in AppDomain.CurrentDomain.GetAssemblies()
+            from type in assembly.GetTypes()
+            let attribute = type.GetCustomAttribute<T>(searchInheritance)
+            where attribute != null
+            select (type, attribute);
 
         public static IEnumerable<(Type type, IEnumerable<T> attachedAttributes)> GetTypesWithAttributes<T>(
-            bool searchInheritance = false) where T : Attribute
-        {
-            return from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                let attributes = type.GetCustomAttributes<T>(searchInheritance)
-                where attributes.Any()
-                select (type, attributes);
-        }
+            bool searchInheritance = false) where T : Attribute =>
+            from assembly in AppDomain.CurrentDomain.GetAssemblies()
+            from type in assembly.GetTypes()
+            let attributes = type.GetCustomAttributes<T>(searchInheritance)
+            where attributes.Any()
+            select (type, attributes);
 
         public static MethodInfo GetMethodByAttribute(Type type, Type attributeType)
         {
@@ -72,20 +69,15 @@ namespace UnityUtils
         }
 
         public static T[] GetAttributes<T>(this ICustomAttributeProvider target, bool inherit)
-            where T : Attribute
-        {
-            return (T[])target.GetCustomAttributes(typeof(T), inherit);
-        }
-        
+            where T : Attribute =>
+            (T[])target.GetCustomAttributes(typeof(T), inherit);
+
         public static T? GetAttribute<T>(this ICustomAttributeProvider target, bool inherit)
             where T : Attribute
         {
             var attributes = target.GetAttributes<T>(inherit);
 
-            if (attributes.Length > 1)
-            {
-                throw new InvalidOperationException($"More than one matching attributes {target}");
-            }
+            if (attributes.Length > 1) throw new InvalidOperationException($"More than one matching attributes {target}");
 
             return attributes.FirstOrDefault();
         }
