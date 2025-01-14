@@ -37,7 +37,7 @@ namespace UnityUtils.Editor
             );
 
         public static readonly GUIStyle Normal = EditorStyles.label;
-        
+
         public static readonly GUIStyle Error = new(EditorStyles.label)
         {
             normal = new GUIStyleState
@@ -51,6 +51,17 @@ namespace UnityUtils.Editor
             normal = new GUIStyleState
             {
                 textColor = HintTextColor
+            }
+        };
+
+        public static readonly GUIStyle Box = new(GUI.skin.box)
+        {
+            padding =
+            {
+                // Magic values that looks right -> might be a terrible idea causing misalignment later but we will deal with it later.
+                left = 12,
+                top = 8,
+                bottom = 8
             }
         };
 
