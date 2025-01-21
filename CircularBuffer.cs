@@ -25,15 +25,6 @@ namespace UnityUtils
         private int _head;
         private int _tail;
 
-        private int WrappedIndex
-        {
-            get
-            {
-                var index = _currentIndex % Capacity;
-                return index < 0 ? index + Capacity : index;
-            }
-        }
-
         public CircularBuffer(int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException(nameof(capacity), "must be positive");
@@ -46,6 +37,16 @@ namespace UnityUtils
         {
             _buffer = buffer;
             _head = buffer.Length - 1;
+            Count = buffer.Length;
+        }
+
+        private int WrappedIndex
+        {
+            get
+            {
+                var wrappedIndex = ToWrappedIndex(_currentIndex);
+                return wrappedIndex;
+            }
         }
 
         public int Count { get; private set; }
@@ -122,12 +123,23 @@ namespace UnityUtils
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (Count == 0 || Capacity == 0) yield break;
-
-            for (var i = 0; i < Count; ++i)
-                yield return _buffer[i];
+            var tempIndex = _currentIndex;
+            for (var i = 0; i < Count; i++)
+            {
+                yield return _buffer[ToWrappedIndex(tempIndex)];
+                tempIndex++;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        private int ToWrappedIndex(int i)
+        {
+            var index = i % Capacity;
+            var wrappedIndex = index < 0 ?
+                index + Capacity :
+                index;
+            return wrappedIndex;
+        }
     }
 }
