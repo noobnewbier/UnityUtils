@@ -6,6 +6,45 @@ namespace UnityUtils.Editor
 {
     public static partial class NonebEditorUtils
     {
+        public class HandlesColorScope : IDisposable
+        {
+            private readonly Color _cacheColor;
+            private bool _disposed;
+
+            public HandlesColorScope(Color color)
+            {
+                _cacheColor = Handles.color;
+                Handles.color = color;
+            }
+
+            public void Dispose()
+            {
+                DoDispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void DoDispose(bool disposing)
+            {
+                if (_disposed)
+                    return;
+
+                if (disposing)
+                    CloseScope();
+
+                _disposed = true;
+            }
+
+            private void CloseScope()
+            {
+                Handles.color = _cacheColor;
+            }
+
+            ~HandlesColorScope()
+            {
+                DoDispose(false);
+            }
+        }
+
         public class EditorLabelWidthScope : IDisposable
         {
             private readonly float _cacheLabelWidth;
