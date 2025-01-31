@@ -72,7 +72,7 @@ namespace UnityUtils.Editor
                     valueRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                     valueRect.height = EditorGUIUtility.singleLineHeight;
 
-                    if (_valueProperty.HasCustomPropertyDrawer())
+                    if (_valueProperty.HasCustomPropertyDrawer() || _valueProperty.HasDefaultDrawer())
                         EditorGUI.PropertyField(valueRect, _valueProperty, new GUIContent(_valueProperty.displayName));
                     else
                         NonebEditorUtils.DrawDefaultPropertyWithoutFoldout(valueRect, _valueProperty);
@@ -86,7 +86,7 @@ namespace UnityUtils.Editor
             if (!IsKeyCompact) return EditorGUI.GetPropertyHeight(property, label, true);
             if (_valueProperty.isExpanded)
             {
-                if (_valueProperty.HasCustomPropertyDrawer()) return EditorGUI.GetPropertyHeight(_valueProperty, new GUIContent("Value")) + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                if (_valueProperty.HasCustomPropertyDrawer() || _valueProperty.HasDefaultDrawer()) return EditorGUI.GetPropertyHeight(_valueProperty, new GUIContent("Value")) + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
                 //Reduce height by one line as it's eaten by the shared foldout by top level
                 return NonebEditorUtils.GetDefaultPropertyDrawerWithoutHeight(property) - EditorGUIUtility.singleLineHeight - EditorGUIUtility.standardVerticalSpacing;

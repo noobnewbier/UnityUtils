@@ -55,6 +55,45 @@ namespace UnityUtils.Editor
             return CustomPropertyDrawerTypeCache.GetCustomPropertyDrawerType(type) != null;
         }
 
+        public static bool HasDefaultDrawer(this SerializedProperty property)
+        {
+            switch (property.propertyType)
+            {
+                case SerializedPropertyType.Integer:
+                case SerializedPropertyType.Boolean:
+                case SerializedPropertyType.Float:
+                case SerializedPropertyType.String:
+                case SerializedPropertyType.Color:
+                case SerializedPropertyType.ObjectReference:
+                case SerializedPropertyType.LayerMask:
+                case SerializedPropertyType.Enum:
+                case SerializedPropertyType.Vector2:
+                case SerializedPropertyType.Vector3:
+                case SerializedPropertyType.Vector4:
+                case SerializedPropertyType.Rect:
+                case SerializedPropertyType.ArraySize:
+                case SerializedPropertyType.Character:
+                case SerializedPropertyType.AnimationCurve:
+                case SerializedPropertyType.Bounds:
+                case SerializedPropertyType.Gradient:
+                case SerializedPropertyType.Quaternion:
+                case SerializedPropertyType.ExposedReference:
+                case SerializedPropertyType.FixedBufferSize:
+                case SerializedPropertyType.Vector2Int:
+                case SerializedPropertyType.Vector3Int:
+                case SerializedPropertyType.RectInt:
+                case SerializedPropertyType.BoundsInt:
+                case SerializedPropertyType.ManagedReference:
+                case SerializedPropertyType.Hash128:
+                case SerializedPropertyType.RenderingLayerMask:
+                    return true;
+
+                case SerializedPropertyType.Generic:
+                default:
+                    return false;
+            }
+        }
+
         public static Rect ShiftRect(Rect rect, float shiftInX)
         {
             const float padding = 2;
