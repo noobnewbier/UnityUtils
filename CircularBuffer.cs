@@ -33,7 +33,7 @@ namespace UnityUtils
             _head = capacity - 1;
         }
 
-        public CircularBuffer(T[] buffer)
+        public CircularBuffer(params T[] buffer)
         {
             _buffer = buffer;
             _head = buffer.Length - 1;
