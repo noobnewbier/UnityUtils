@@ -49,7 +49,11 @@ namespace UnityUtils.Pooling
 
         public int CountActive => CountAll - CountInactive;
 
-        public void Dispose() => Clear();
+        public void Dispose()
+        {
+            Clear();
+            Object.Destroy(_pooledObjectRoot);
+        }
 
         public int CountInactive => _list.Count;
 
@@ -101,7 +105,11 @@ namespace UnityUtils.Pooling
         {
             if (_actionOnDestroy != null)
                 foreach (var obj in _list)
+                {
                     _actionOnDestroy(obj);
+                    Object.Destroy(obj.gameObject);
+                }
+
             _list.Clear();
             CountAll = 0;
         }
