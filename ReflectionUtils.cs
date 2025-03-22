@@ -97,6 +97,15 @@ namespace UnityUtils
             return null;
         }
 
+        public static bool IsUnitySupportedCollection(this Type t)
+        {
+            if (t.IsArray) return true;
+
+            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>)) return true;
+
+            return false;
+        }
+
         /// <summary>
         ///     <see cref="Type.GetField(string)" /> but also looking from its base type recursively as well.
         /// <see cref="BindingFlags" /> includes non public field by default, as that's usually what I expect when working with
