@@ -72,20 +72,37 @@ namespace UnityUtils.Editor
 
         private static int MaxResults => 15;
 
-        public void OnGUI()
+        public void OnGUI(bool shouldExpandTextField = true)
         {
             Rect rect;
             using (new GUILayout.HorizontalScope())
             {
                 rect = GUILayoutUtility.GetRect(new GUIContent(string.Empty), GUI.skin.button, GUILayout.ExpandWidth(true));
-                using (new NonebEditorUtils.EditorLabelWidthScope(_label))
-                {
-                    rect = EditorGUI.PrefixLabel(rect, new GUIContent(_label), EditorStyles.label);
-                }
+                rect = DrawLabel(rect, shouldExpandTextField);
 
                 DoSearchField(rect);
             }
 
+            DoCandidates(rect);
+        }
+
+        private Rect DrawLabel(Rect rect, bool shouldExpandTextField)
+        {
+            if (shouldExpandTextField)
+                using (new NonebEditorUtils.EditorLabelWidthScope(_label))
+                {
+                    rect = EditorGUI.PrefixLabel(rect, new GUIContent(_label), EditorStyles.label);
+                }
+            else
+                rect = EditorGUI.PrefixLabel(rect, new GUIContent(_label), EditorStyles.label);
+
+            return rect;
+        }
+
+        public void OnGUI(Rect rect, bool shouldExpandTextField = true)
+        {
+            rect = DrawLabel(rect, shouldExpandTextField);
+            DoSearchField(rect);
             DoCandidates(rect);
         }
 
@@ -104,10 +121,7 @@ namespace UnityUtils.Editor
                 }
             }
 
-            if (HasSearchbarFocused())
-            {
-                RepaintFocusedWindow();
-            }
+            if (HasSearchbarFocused()) RepaintFocusedWindow();
         }
 
         private void OnDownOrUpArrowKeyPressed()
@@ -149,10 +163,7 @@ namespace UnityUtils.Editor
 
             var mouseIsInResultsRect = rect.Contains(current.mousePosition);
 
-            if (mouseIsInResultsRect)
-            {
-                RepaintFocusedWindow();
-            }
+            if (mouseIsInResultsRect) RepaintFocusedWindow();
 
             var movedMouseInRect = _previousMousePosition != current.mousePosition;
 
@@ -187,40 +198,23 @@ namespace UnityUtils.Editor
                         didJustSelectIndex = true;
                     }
 
-                    if (current.type == EventType.MouseDown)
-                    {
-                        OnConfirm(_candidates[i]);
-                    }
+                    if (current.type == EventType.MouseDown) OnConfirm(_candidates[i]);
                 }
 
                 elementRect.y -= Styles.ResultHeight;
             }
 
-            if (current.type == EventType.Repaint && !didJustSelectIndex && !mouseIsInResultsRect && _selectedIndexByMouse)
-            {
-                _selectedIndex = -1;
-            }
+            if (current.type == EventType.Repaint && !didJustSelectIndex && !mouseIsInResultsRect && _selectedIndexByMouse) _selectedIndex = -1;
 
             if (GUIUtility.hotControl != _searchField.searchFieldControlID && GUIUtility.hotControl > 0
                 || current.rawType == EventType.MouseDown && !mouseIsInResultsRect)
-            {
                 _shouldDrawCandidates = false;
-            }
 
-            if (current.type == EventType.KeyUp && current.keyCode == KeyCode.Escape)
-            {
-                _shouldDrawCandidates = false;
-            }
+            if (current.type == EventType.KeyUp && current.keyCode == KeyCode.Escape) _shouldDrawCandidates = false;
 
-            if (current.type == EventType.KeyUp && current.keyCode == KeyCode.Return && _selectedIndex >= 0)
-            {
-                OnConfirm(_candidates[_selectedIndex]);
-            }
+            if (current.type == EventType.KeyUp && current.keyCode == KeyCode.Return && _selectedIndex >= 0) OnConfirm(_candidates[_selectedIndex]);
 
-            if (current.type == EventType.Repaint)
-            {
-                _previousMousePosition = current.mousePosition;
-            }
+            if (current.type == EventType.Repaint) _previousMousePosition = current.mousePosition;
         }
 
         private void OnConfirm(string result)
@@ -233,17 +227,11 @@ namespace UnityUtils.Editor
             GUIUtility.keyboardControl = 0; // To avoid Unity sometimes not updating the search field text
         }
 
-        private bool HasSearchbarFocused()
-        {
-            return GUIUtility.keyboardControl == _searchField.searchFieldControlID;
-        }
+        private bool HasSearchbarFocused() => GUIUtility.keyboardControl == _searchField.searchFieldControlID;
 
         private static void RepaintFocusedWindow()
         {
-            if (EditorWindow.focusedWindow != null)
-            {
-                EditorWindow.focusedWindow.Repaint();
-            }
+            if (EditorWindow.focusedWindow != null) EditorWindow.focusedWindow.Repaint();
         }
 
         public void DirtyOption()
@@ -266,21 +254,13 @@ namespace UnityUtils.Editor
 
             // Start with - slow
             for (var i = 0; i < _options.Count && _candidates.Count < MaxResults; i++)
-            {
                 if (_options[i].ToLower().StartsWith(_value.ToLower()) && !_candidates.Contains(_options[i]))
-                {
                     _candidates.Add(_options[i]);
-                }
-            }
 
             // Contains - very slow
             for (var i = 0; i < _options.Count && _candidates.Count < MaxResults; i++)
-            {
                 if (_options[i].ToLower().Contains(_value.ToLower()) && !_candidates.Contains(_options[i]))
-                {
                     _candidates.Add(_options[i]);
-                }
-            }
 
             // Levenshtein Distance - very very slow.
             const int fuzzyMatchBias = 3;
@@ -294,10 +274,7 @@ namespace UnityUtils.Editor
                 {
                     var distance = LevenshteinDistance(_options[i], keywords);
                     var closeEnough = (int)(fuzzyThreshold * _options[i].Length) > distance;
-                    if (closeEnough && !_candidates.Contains(_options[i]))
-                    {
-                        _candidates.Add(_options[i]);
-                    }
+                    if (closeEnough && !_candidates.Contains(_options[i])) _candidates.Add(_options[i]);
                 }
             }
         }
@@ -306,7 +283,7 @@ namespace UnityUtils.Editor
         /// <param name="lhs">The first enumerable.</param>
         /// <param name="rhs">The second enumerable.</param>
         /// <returns>The edit distance.</returns>
-        /// <see cref="https://en.wikipedia.org/wiki/Levenshtein_distance"/>
+        /// <see cref="https://en.wikipedia.org/wiki/Levenshtein_distance" />
         public static int LevenshteinDistance(string lhs, string rhs)
         {
             lhs = lhs.ToLower();
@@ -314,7 +291,7 @@ namespace UnityUtils.Editor
 
             var first = lhs.ToCharArray();
             var second = rhs.ToCharArray();
-            return LevenshteinDistance<char>(first, second);
+            return LevenshteinDistance(first, second);
         }
 
         /// <summary>Computes the Levenshtein Edit Distance between two enumerables.</summary>
@@ -322,7 +299,7 @@ namespace UnityUtils.Editor
         /// <param name="lhs">The first enumerable.</param>
         /// <param name="rhs">The second enumerable.</param>
         /// <returns>The edit distance.</returns>
-        /// <see cref="https://blogs.msdn.microsoft.com/toub/2006/05/05/generic-levenshtein-edit-distance-with-c/"/>
+        /// <see cref="https://blogs.msdn.microsoft.com/toub/2006/05/05/generic-levenshtein-edit-distance-with-c/" />
         public static int LevenshteinDistance<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) where T : IEquatable<T>
         {
             // Convert the parameters into IList instances
