@@ -1,0 +1,6 @@
+{
+  "name": "UnityUtils.GizmosDrawer",
+  "references": [
+    "UnityUtils.Editor"
+  ]
+}

@@ -45,6 +45,45 @@ namespace UnityUtils.Editor
             }
         }
 
+        public class GizmosColorScope : IDisposable
+        {
+            private readonly Color _cacheColor;
+            private bool _disposed;
+
+            public GizmosColorScope(Color color)
+            {
+                _cacheColor = Gizmos.color;
+                Gizmos.color = color;
+            }
+
+            public void Dispose()
+            {
+                DoDispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void DoDispose(bool disposing)
+            {
+                if (_disposed)
+                    return;
+
+                if (disposing)
+                    CloseScope();
+
+                _disposed = true;
+            }
+
+            private void CloseScope()
+            {
+                Gizmos.color = _cacheColor;
+            }
+
+            ~GizmosColorScope()
+            {
+                DoDispose(false);
+            }
+        }
+
         public class EditorLabelWidthScope : IDisposable
         {
             private readonly float _cacheLabelWidth;
