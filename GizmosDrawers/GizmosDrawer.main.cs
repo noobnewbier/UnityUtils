@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -13,13 +14,29 @@ namespace UnityUtils
         static GizmosDrawer()
         {
             Requests.Clear();
+            CreateRunnerIfNotExist();
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void OnRuntimeInitialized()
         {
-            var runner = new GameObject("GizmosDrawerRunner").AddComponent<Runner>();
-            Object.DontDestroyOnLoad(runner.gameObject);
+            CreateRunnerIfNotExist();
+        }
+
+        private static void CreateRunnerIfNotExist()
+        {
+            if (!Application.isPlaying)
+                if (Resources.FindObjectsOfTypeAll<Runner>().Any())
+                    return;
+
+            /*
+             * Unity doesn't run gizmos drawing if the object itself is hidden.
+             * So no, no hide flags.
+             */
+            var runner = new GameObject("AutoDeletedEditorHelper").AddComponent<Runner>();
+
+
+            if (Application.isPlaying) Object.DontDestroyOnLoad(runner.gameObject);
         }
 
         private static void Request(DrawRequest request)
