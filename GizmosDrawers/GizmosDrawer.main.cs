@@ -52,9 +52,9 @@ namespace UnityUtils
                 {
                     foreach (var request in Requests)
                     {
-                        request.Timer += Time.deltaTime;
-
                         if (request.IsExpired) expiredRequests.Add(request);
+
+                        request.Timer += Time.deltaTime;
                     }
 
                     Requests.ExceptWith(expiredRequests);
