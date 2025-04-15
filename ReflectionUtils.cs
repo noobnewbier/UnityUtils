@@ -123,6 +123,16 @@ namespace UnityUtils
             return baseType?.GetField(fieldName, bindingFlags);
         }
 
+        public static IEnumerable<FieldInfo> GetFieldsOfType<T>(
+            this Type type,
+            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        {
+            var fields = type.GetFields(bindingFlags);
+            foreach (var fi in fields)
+                if (fi.FieldType == typeof(T))
+                    yield return fi;
+        }
+
         public static bool IsSameOrSubclass(this Type potentialDescendant, Type? potentialBase) => IsSameOrSubClassCache.Check(potentialDescendant, potentialBase);
 
         /// <summary>
