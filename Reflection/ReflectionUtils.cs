@@ -8,19 +8,19 @@ using UnityEngine;
 namespace UnityUtils
 {
     [InitializeOnLoad]
-    public static class ReflectionUtils
+    public static partial class ReflectionUtils
     {
         static ReflectionUtils()
         {
-            IsSameOrSubClassCache.Clear();
+            ClearCache();
         }
 
-        public static IEnumerable<MethodInfo> GetMethodsByAttribute(Type type, Type attributeType)
+        [MenuItem("NonebNi/Editor/Clear Reflection Cache")]
+        public static void ClearCache()
         {
-            if (!attributeType.IsSubclassOf(typeof(Attribute)))
-                throw new ArgumentNullException($"{attributeType.FullName} is not an attribute");
-
-            return type.GetMethods().Where(m => m.GetCustomAttribute(attributeType, false) != null);
+            IsSameOrSubClassCache.Clear();
+            MethodByAttributeCache.Clear();
+            MemberBindingFlagsCache.Clear();
         }
 
         public static IEnumerable<FieldInfo> GetFieldsByAttribute(
@@ -51,23 +51,6 @@ namespace UnityUtils
             where attributes.Any()
             select (type, attributes);
 
-        public static MethodInfo GetMethodByAttribute(Type type, Type attributeType)
-        {
-            var methods = GetMethodsByAttribute(type, attributeType);
-
-            var methodInfos = methods.ToList();
-            if (methodInfos.Count > 1)
-                throw new ArgumentException(
-                    $"There is more than one method with type: {type.FullName} with the attribute: {attributeType.FullName}"
-                );
-
-            if (!methodInfos.Any())
-                throw new ArgumentException(
-                    $"There is no method with type: {type.FullName} with the attribute: {attributeType.FullName}"
-                );
-
-            return methodInfos.First();
-        }
 
         public static T[] GetAttributes<T>(this ICustomAttributeProvider target, bool inherit)
             where T : Attribute =>
