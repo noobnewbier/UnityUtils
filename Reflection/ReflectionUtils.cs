@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,7 +22,93 @@ namespace UnityUtils
             IsSameOrSubClassCache.Clear();
             MethodByAttributeCache.Clear();
             MemberBindingFlagsCache.Clear();
+            SameOrSubclassCache.Clear();
+            TypeHierarchyCache.Clear();
+            TypeCache.Clear();
         }
+
+        /// <summary>
+        /// A type is concrete if I can create an instance of it. The check is probably incomplete, use at your own risk
+        /// https://stackoverflow.com/questions/31772922/difference-between-isgenerictype-and-isgenerictypedefinition
+        /// </summary>
+        public static bool IsConcrete(this Type type) => type is { IsAbstract: false, IsInterface: false, IsGenericTypeParameter: false, IsGenericTypeDefinition: false };
+
+        public static (bool success, object? instance) TryCreateInstance(this Type type)
+        {
+            try
+            {
+                return (true, Activator.CreateInstance(type));
+            }
+            catch (MissingMethodException)
+            {
+                return (false, null);
+            }
+        }
+
+        public static object CreateObjectWithLeastPossibleDependencies(this Type type)
+        {
+            if (type.IsValueType)
+                //value type -> no constructor
+                return Activator.CreateInstance(type);
+
+            if (type == typeof(string)) return string.Empty;
+
+            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            if (type.GetConstructor(bindingFlags, null, Type.EmptyTypes, null) != null)
+                //default param-less constructor - just use this
+                return Activator.CreateInstance(type);
+
+            var constructors = type.GetConstructors(bindingFlags);
+            var leastArgConstructors = constructors.Aggregate(
+                (current, next) =>
+                {
+                    if (current == null) return next;
+
+                    var currParams = current.GetParameters();
+                    var nextParams = next.GetParameters();
+
+                    // Recursive construction, we need to just fuck off.
+                    if (currParams.Any(p => p.ParameterType == type)) return next;
+
+                    if (nextParams.Any(p => p.ParameterType == type)) return current;
+
+                    var currRequiredArgCount = currParams.Count(p => !p.HasDefaultValue);
+                    var nextRequiredArgCount = nextParams.Count(p => !p.HasDefaultValue);
+
+                    return currRequiredArgCount <= nextRequiredArgCount ?
+                        current :
+                        next;
+                }
+            );
+
+            if (leastArgConstructors == null)
+                /*
+                 * Break glass in case of emergency - there isn't a constructor we can use,
+                 * so we just bypass it completely and create an object without using a constructor.
+                 */
+                return FormatterServices.GetUninitializedObject(type);
+
+            var args = leastArgConstructors
+                .GetParameters()
+                .Select(
+                    p =>
+                    {
+                        return p switch
+                        {
+                            _ when p.HasDefaultValue => p.DefaultValue ?? null,
+                            _ when p.ParameterType.IsValueType => Activator.CreateInstance(p.ParameterType),
+                            _ => null
+                        };
+                    }
+                )
+                .ToArray();
+
+            return leastArgConstructors.Invoke(args);
+        }
+
+        public static TypeHierarchy GetTypeHierarchy(this Type type) => TypeHierarchyCache.GetOrFind(type);
+
+        public static IEnumerable<Type> GetSubclasses(this Type type) => SameOrSubclassCache.Get(type);
 
         public static IEnumerable<FieldInfo> GetFieldsByAttribute(
             Type type,
@@ -37,20 +124,17 @@ namespace UnityUtils
 
         public static IEnumerable<(Type type, T attachedAttribute)> GetTypesWithAttribute<T>(
             bool searchInheritance = false) where T : Attribute =>
-            from assembly in AppDomain.CurrentDomain.GetAssemblies()
-            from type in assembly.GetTypes()
+            from type in GetAllTypes()
             let attribute = type.GetCustomAttribute<T>(searchInheritance)
             where attribute != null
             select (type, attribute);
 
         public static IEnumerable<(Type type, IEnumerable<T> attachedAttributes)> GetTypesWithAttributes<T>(
             bool searchInheritance = false) where T : Attribute =>
-            from assembly in AppDomain.CurrentDomain.GetAssemblies()
-            from type in assembly.GetTypes()
+            from type in GetAllTypes()
             let attributes = type.GetCustomAttributes<T>(searchInheritance)
             where attributes.Any()
             select (type, attributes);
-
 
         public static T[] GetAttributes<T>(this ICustomAttributeProvider target, bool inherit)
             where T : Attribute =>
@@ -141,6 +225,86 @@ namespace UnityUtils
 
             return false;
         }
+
+        private static IEnumerable<Type> GetAllTypes() => TypeCache.GetOrFind();
+
+        private static class TypeCache
+        {
+            private static Type[]? _cache;
+
+            public static Type[] GetOrFind()
+            {
+                return _cache ??= AppDomain.CurrentDomain.GetAssemblies()
+                    /*
+                     * todo:
+                     * I think I will regret at some point, but this might be good enough now
+                     * in a nutshell we are trying to cut down the number of types we are chowing through for performance
+                     * It might be better if we can have a way to walk "upwards" in the type hierarchy when doing the type analysis...?
+                     */
+                    .Where(a => a.FullName.Contains("Unity") || a.FullName.Contains("Noneb"))
+                    .SelectMany(assembly => assembly.GetTypes())
+                    .ToArray();
+            }
+
+            public static void Clear()
+            {
+                _cache = null;
+            }
+        }
+
+        private static class SameOrSubclassCache
+        {
+            private static readonly Dictionary<Type, Type[]> Cache = new();
+
+            public static IEnumerable<Type> Get(Type baseType)
+            {
+                if (!Cache.TryGetValue(baseType, out var cache))
+                {
+                    var enumerable = GetAllTypes().Where(type => IsSameOrSubclass(type, baseType));
+                    Cache[baseType] = cache =
+                        enumerable
+                            .ToArray();
+                }
+
+                return cache;
+            }
+
+            public static void Clear()
+            {
+                Cache.Clear();
+            }
+        }
+
+        private static class TypeHierarchyCache
+        {
+            private static readonly Dictionary<Type, TypeHierarchy> Cache = new();
+
+            public static TypeHierarchy GetOrFind(Type type)
+            {
+                if (!Cache.TryGetValue(type, out var cache)) Cache[type] = cache = CreateHierarchy(type);
+
+                return cache;
+            }
+
+            private static TypeHierarchy CreateHierarchy(Type type)
+            {
+                var subclasses = type.GetSubclasses().Where(t => t != type);
+                var children = new List<TypeHierarchy>();
+                foreach (var subclass in subclasses)
+                {
+                    var child = CreateHierarchy(subclass);
+                    children.Add(child);
+                }
+
+                return new TypeHierarchy(type, children);
+            }
+
+            public static void Clear()
+            {
+                Cache.Clear();
+            }
+        }
+
 
         private static class IsSameOrSubClassCache
         {
