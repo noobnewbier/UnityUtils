@@ -120,6 +120,16 @@ namespace UnityUtils.Editor
             return position;
         }
 
+        public static void DrawDefaultPropertyWithoutFoldout(SerializedProperty property)
+        {
+            property.Next(true); // get first child of your property
+            var depth = property.depth;
+            do
+            {
+                EditorGUILayout.PropertyField(property, true); // Include children
+            } while (property.Next(false) && depth <= property.depth);
+        }
+
         public static float GetDefaultPropertyDrawerWithoutHeight(SerializedProperty property)
         {
             property.Next(true);
