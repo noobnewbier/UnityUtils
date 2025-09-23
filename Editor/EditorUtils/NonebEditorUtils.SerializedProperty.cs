@@ -16,6 +16,7 @@ namespace UnityUtils.Editor
         public static SerializedProperty? FindParentProperty(this SerializedProperty property)
         {
             var propertyPaths = property.propertyPath.Split('.');
+
             if (propertyPaths.Length <= 1) return default;
 
             var parentSerializedProperty = property.serializedObject.FindProperty(propertyPaths.First());
@@ -47,6 +48,7 @@ namespace UnityUtils.Editor
         public static bool IsArrayElement(this SerializedProperty property)
         {
             var parent = property.FindParentProperty()?.FindParentProperty();
+
             if (parent == null) return false;
 
             return parent.isArray;
@@ -56,6 +58,7 @@ namespace UnityUtils.Editor
         {
             var index = property.enumValueIndex;
             var name = property.enumNames.ElementAtOrDefault(index);
+
             if (string.IsNullOrEmpty(name)) return default;
 
             if (!Enum.TryParse(typeof(T), name, true, out var result)) return default;
@@ -67,6 +70,7 @@ namespace UnityUtils.Editor
         {
             //default to find field
             var toReturn = self.FindPropertyRelative(propertyName);
+
             if (toReturn != null) return toReturn;
 
             //fallback to properties backing field
@@ -95,7 +99,7 @@ namespace UnityUtils.Editor
         /// </summary>
         /// <param name="prop"></param>
         /// <returns></returns>
-        public static object? GetTargetObjectOfProperty(SerializedProperty prop)
+        public static object? GetTargetObjectOfProperty(this SerializedProperty prop)
         {
 #if UNITY_2021_2_OR_NEWER
             if (prop.propertyType == SerializedPropertyType.ManagedReference) return prop.managedReferenceValue;
@@ -162,6 +166,7 @@ namespace UnityUtils.Editor
                     for (var i = 0; i < arr.Length; i++)
                     {
                         var source = arr[i];
+
                         if (source == null) continue;
 
                         arr[i] = GetValue_Imp(source, elementName, index);
@@ -172,6 +177,7 @@ namespace UnityUtils.Editor
                     for (var i = 0; i < arr.Length; i++)
                     {
                         var source = arr[i];
+
                         if (source == null) continue;
 
                         arr[i] = GetValue_Imp(source, element);
@@ -190,10 +196,12 @@ namespace UnityUtils.Editor
             while (type != null)
             {
                 var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
                 if (f != null)
                     return f.GetValue(source);
 
                 var p = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
                 if (p != null)
                     return p.GetValue(source, null);
 
@@ -208,6 +216,7 @@ namespace UnityUtils.Editor
             if (source == null) return null;
 
             var enumerable = GetValue_Imp(source, name) as IEnumerable;
+
             if (enumerable == null) return null;
             var enm = enumerable.GetEnumerator();
             //while (index-- >= 0)
@@ -344,6 +353,7 @@ namespace UnityUtils.Editor
                 case SerializedPropertyType.ObjectReference:
                 {
                     var foundFieldType = GetType(property);
+
                     if (foundFieldType != null) return foundFieldType;
 
                     return typeof(Object);
@@ -375,6 +385,7 @@ namespace UnityUtils.Editor
                  * Of course, this is true for fields as well! However we aren't having that issue for now, so we are kicking the can down the road at the moment as that could get a bit more complicated.
                  */
                 pathToFieldFromType = pathToFieldFromType.Trim('.');
+
                 if (!pathToFieldFromType.Contains('.')) return type.GetFieldIncludingParents(pathToFieldFromType);
 
                 Regex arrayElementRegex = new(@"(\.Array\.data\[[0-9]+\])");
@@ -398,6 +409,7 @@ namespace UnityUtils.Editor
                     if (elementType == null)
                     {
                         Debug.LogError("Something went wrong, should never have got here.");
+
                         return null;
                     }
 
@@ -420,6 +432,7 @@ namespace UnityUtils.Editor
                         Debug.LogError(
                             $"Couldn't find type given the field path({pathToFieldFromType}). This is unexpected, is the path correct?"
                         );
+
                         return null;
                     }
 
@@ -433,6 +446,7 @@ namespace UnityUtils.Editor
             {
                 var parentType = property.serializedObject.targetObject.GetType();
                 var fi = GetFieldViaPath(property.serializedObject, parentType, property.propertyPath, string.Empty);
+
                 return fi?.FieldType;
             }
         }
@@ -447,6 +461,7 @@ namespace UnityUtils.Editor
             if (targetProperty == null)
             {
                 Debug.LogError("Cannot find property with the given path, likely unintended!");
+
                 return null;
             }
 
@@ -459,6 +474,7 @@ namespace UnityUtils.Editor
             if (targetProperty == null)
             {
                 Debug.LogError("Cannot find property with the given path, likely unintended!");
+
                 return 0;
             }
 
@@ -468,6 +484,7 @@ namespace UnityUtils.Editor
         private static SerializedProperty? FindPropertyInSameDepth(SerializedProperty property, string targetPropertyName)
         {
             var fieldProperty = DoFindProperty(targetPropertyName);
+
             if (fieldProperty != null) return fieldProperty;
 
             var propertyBindingPath = GetPropertyBindingPath(targetPropertyName);
@@ -484,6 +501,7 @@ namespace UnityUtils.Editor
                 if (isNestedProperty) targetPath = objectPath[..lastDotIndex] + "." + targetPath;
 
                 var targetProperty = property.serializedObject.FindProperty(targetPath);
+
                 return targetProperty;
             }
         }
