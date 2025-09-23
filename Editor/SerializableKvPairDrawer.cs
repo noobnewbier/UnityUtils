@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityUtils.Serialization;
 
@@ -16,6 +17,7 @@ namespace UnityUtils.Editor
             get
             {
                 var targetType = _keyProperty.GetTargetType();
+
                 if (targetType == null) return false;
 
                 return targetType.CanShowInOneLine();
@@ -31,6 +33,15 @@ namespace UnityUtils.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             FindProperties(property);
+
+            //overriding the label - it's never that useful to have "Element {num}" over this.
+            const string labelPrefix = "Element "; // Unity's label by default - "Element {Index}".
+            var indexString = int.TryParse(new string(label.text.Skip(labelPrefix.Length).ToArray()), out var result) ?
+                result.ToString() :
+                "?";
+            var keyInfo = _keyProperty.GetTargetObjectOfProperty()?.ToString();
+            if (!string.IsNullOrWhiteSpace(keyInfo)) label.text = $"({indexString}) {keyInfo}";
+
             if (!IsKeyCompact)
             {
                 //Need to draw child manually otherwise indentation isn't right.
@@ -83,6 +94,7 @@ namespace UnityUtils.Editor
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             FindProperties(property);
+
             if (!IsKeyCompact) return EditorGUI.GetPropertyHeight(property, label, true);
             if (_valueProperty.isExpanded)
             {
