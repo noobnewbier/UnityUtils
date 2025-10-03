@@ -20,6 +20,7 @@ namespace UnityUtils.Editor
             if (propertyPaths.Length <= 1) return default;
 
             var parentSerializedProperty = property.serializedObject.FindProperty(propertyPaths.First());
+
             for (var index = 1; index < propertyPaths.Length - 1; index++)
             {
                 if (propertyPaths[index] == "Array")
@@ -110,6 +111,7 @@ namespace UnityUtils.Editor
             var path = prop.propertyPath.Replace(".Array.data[", "[");
             object? obj = prop.serializedObject.targetObject;
             var elements = path.Split('.');
+
             foreach (var element in elements)
                 if (element.Contains("["))
                 {
@@ -136,6 +138,7 @@ namespace UnityUtils.Editor
             var path = prop.propertyPath.Replace(".Array.data[", "[");
             object? obj = prop.serializedObject.targetObject;
             var elements = path.Split('.');
+
             foreach (var element in elements.Take(elements.Length - 1))
                 if (element.Contains("["))
                 {
@@ -158,11 +161,13 @@ namespace UnityUtils.Editor
             var arr = new object?[prop.serializedObject.targetObjects.Length];
             var path = prop.propertyPath.Replace(".Array.data[", "[");
             var elements = path.Split('.');
+
             foreach (var element in elements.Take(elements.Length - 1))
                 if (element.Contains("["))
                 {
                     var elementName = element[..element.IndexOf("[", StringComparison.Ordinal)];
                     var index = Convert.ToInt32(element[element.IndexOf("[", StringComparison.Ordinal)..].Replace("[", "").Replace("]", ""));
+
                     for (var i = 0; i < arr.Length; i++)
                     {
                         var source = arr[i];
@@ -218,6 +223,7 @@ namespace UnityUtils.Editor
             var enumerable = GetValue_Imp(source, name) as IEnumerable;
 
             if (enumerable == null) return null;
+
             var enm = enumerable.GetEnumerator();
             //while (index-- >= 0)
             //    enm.MoveNext();
@@ -368,6 +374,16 @@ namespace UnityUtils.Editor
                 case SerializedPropertyType.Generic:
                 default:
                 {
+                    var boxed = property.boxedValue;
+
+                    if (boxed != null)
+                        // easy way out - no need to do complicated reflection crap
+                        return boxed.GetType();
+
+                    /*
+                     * This seems to be broken on recursive data structure, so if we can't get the boxed value we are borked here.
+                     * I think it's still workable but we probably need to rework GetFieldViaPath a bit.
+                     */
                     return GetType(property);
                 }
 
@@ -388,8 +404,9 @@ namespace UnityUtils.Editor
 
                 if (!pathToFieldFromType.Contains('.')) return type.GetFieldIncludingParents(pathToFieldFromType);
 
-                Regex arrayElementRegex = new(@"(\.Array\.data\[[0-9]+\])");
+                Regex arrayElementRegex = new (@"(\.Array\.data\[[0-9]+\])");
                 var match = arrayElementRegex.Match(pathToFieldFromType);
+
                 if (match.Success)
                 {
                     var arrayElementEndIndex = match.Index + match.Length;
@@ -399,6 +416,7 @@ namespace UnityUtils.Editor
 
                     var elementValue = GetTargetObjectOfProperty(arrayElement);
                     var elementType = elementValue?.GetType();
+
                     if (elementType == null)
                     {
                         var pathToArray = pathToFieldFromType[..match.Index];
@@ -424,9 +442,11 @@ namespace UnityUtils.Editor
                 // If the field is nested in subclass, going down the path to find the field at the leaf level.
                 var parentType = type;
                 FieldInfo? currentFieldInfo = null;
+
                 foreach (var fieldNameInEachLevel in pathToFieldFromType.Split('.'))
                 {
                     currentFieldInfo = parentType.GetFieldIncludingParents(fieldNameInEachLevel);
+
                     if (currentFieldInfo == null)
                     {
                         Debug.LogError(
@@ -458,6 +478,7 @@ namespace UnityUtils.Editor
             where T : class
         {
             var targetProperty = FindPropertyInSameDepth(property, targetPropertyName);
+
             if (targetProperty == null)
             {
                 Debug.LogError("Cannot find property with the given path, likely unintended!");
@@ -471,6 +492,7 @@ namespace UnityUtils.Editor
         public static int FindPropertyIntInSameDepth(SerializedProperty property, string targetPropertyName)
         {
             var targetProperty = FindPropertyInSameDepth(property, targetPropertyName);
+
             if (targetProperty == null)
             {
                 Debug.LogError("Cannot find property with the given path, likely unintended!");
