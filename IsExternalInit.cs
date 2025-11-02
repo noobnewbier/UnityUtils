@@ -1,5 +1,6 @@
-﻿// ReSharper disable once CheckNamespace
+﻿using JetBrains.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace System.Runtime.CompilerServices
 {
     /// <summary>
@@ -8,5 +9,6 @@ namespace System.Runtime.CompilerServices
     ///
     /// https://docs.unity3d.com/2021.2/Documentation/Manual/CSharpCompiler.html
     /// </summary>
+    [UsedImplicitly]
     public class IsExternalInit { }
 }
