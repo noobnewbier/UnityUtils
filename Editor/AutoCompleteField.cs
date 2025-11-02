@@ -15,8 +15,8 @@ namespace UnityUtils.Editor
     /// </summary>
     public class AutoCompleteField
     {
-        private readonly List<string> _candidates = new();
-        private readonly string _label;
+        private readonly List<string> _candidates = new ();
+        private readonly GUIContent _label;
         private readonly Action<string>? _onConfirmCallback;
 
         private readonly Action<string>? _onInputChangedCallback;
@@ -24,7 +24,7 @@ namespace UnityUtils.Editor
 
         private readonly SearchField _searchField;
         private bool _isOptionValid;
-        private List<string> _options = new();
+        private List<string> _options = new ();
 
         private Vector2 _previousMousePosition;
         private int _selectedIndex = -1;
@@ -36,7 +36,8 @@ namespace UnityUtils.Editor
         public AutoCompleteField(
             SerializedProperty property,
             Func<IEnumerable<string>> optionsFactory,
-            Action<string>? onValueChangedCallback = null) : this(
+            Action<string>? onValueChangedCallback = null,
+            GUIContent? label = null) : this(
             s =>
             {
                 property.stringValue = s;
@@ -49,7 +50,7 @@ namespace UnityUtils.Editor
                 onValueChangedCallback?.Invoke(s);
             },
             optionsFactory,
-            property.displayName,
+            label ?? new GUIContent(property.displayName),
             property.stringValue
         ) { }
 
@@ -57,7 +58,7 @@ namespace UnityUtils.Editor
             Action<string>? onInputChangedCallback,
             Action<string>? onConfirmCallback,
             Func<IEnumerable<string>> optionsFactory,
-            string label,
+            GUIContent label,
             string value)
         {
             _onInputChangedCallback = onInputChangedCallback;
