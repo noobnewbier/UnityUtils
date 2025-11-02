@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UnityUtils.Editor
 {
-    public static partial class NonebEditorUtils
+    public static partial class NonebEditorGUI
     {
         public class HandlesColorScope : IDisposable
         {

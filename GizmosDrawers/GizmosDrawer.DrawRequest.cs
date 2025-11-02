@@ -22,7 +22,7 @@ namespace UnityUtils
 
             public void Draw()
             {
-                using (new NonebEditorUtils.GizmosColorScope(_color))
+                using (new NonebEditorGUI.GizmosColorScope(_color))
                 {
                     OnDraw();
                 }

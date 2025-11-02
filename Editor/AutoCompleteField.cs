@@ -89,12 +89,12 @@ namespace UnityUtils.Editor
         private Rect DrawLabel(Rect rect, bool shouldExpandTextField)
         {
             if (shouldExpandTextField)
-                using (new NonebEditorUtils.EditorLabelWidthScope(_label))
+                using (new NonebEditorGUI.EditorLabelWidthScope(_label.text))
                 {
-                    rect = EditorGUI.PrefixLabel(rect, new GUIContent(_label), EditorStyles.label);
+                    rect = EditorGUI.PrefixLabel(rect, new (_label), EditorStyles.label);
                 }
             else
-                rect = EditorGUI.PrefixLabel(rect, new GUIContent(_label), EditorStyles.label);
+                rect = EditorGUI.PrefixLabel(rect, new (_label), EditorStyles.label);
 
             return rect;
         }

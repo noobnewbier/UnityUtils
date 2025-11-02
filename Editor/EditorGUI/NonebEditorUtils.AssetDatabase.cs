@@ -4,8 +4,19 @@ using UnityEngine;
 
 namespace UnityUtils.Editor
 {
-    public static partial class NonebEditorUtils
+    public static partial class NonebEditorGUI
     {
+        public static IEnumerable<T> FindAssetsByType<T>() where T : Object
+        {
+            var guids = AssetDatabase.FindAssets($"t:{typeof(T)}");
+            foreach (var t in guids)
+            {
+                var assetPath = AssetDatabase.GUIDToAssetPath(t);
+                var asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+                if (asset != null) yield return asset;
+            }
+        }
+
         /// <summary>
         /// Note: this includes sub-asset!
         /// </summary>

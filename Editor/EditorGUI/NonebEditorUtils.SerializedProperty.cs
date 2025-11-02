@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace UnityUtils.Editor
 {
-    public static partial class NonebEditorUtils
+    public static partial class NonebEditorGUI
     {
         public static string GetPropertyBindingPath(string propertyName) => $"<{propertyName}>k__BackingField";
 

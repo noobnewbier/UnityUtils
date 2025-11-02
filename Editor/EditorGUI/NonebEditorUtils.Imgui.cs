@@ -9,9 +9,9 @@ using Object = UnityEngine.Object;
 namespace UnityUtils.Editor
 {
     [InitializeOnLoad]
-    public static partial class NonebEditorUtils
+    public static partial class NonebEditorGUI
     {
-        static NonebEditorUtils()
+        static NonebEditorGUI()
         {
             CustomPropertyDrawerTypeCache.Clear();
         }
