@@ -59,8 +59,7 @@ namespace UnityUtils
                 return Activator.CreateInstance(type);
 
             var constructors = type.GetConstructors(bindingFlags);
-            var leastArgConstructors = constructors.Aggregate(
-                (current, next) =>
+            var leastArgConstructors = constructors.Aggregate((current, next) =>
                 {
                     if (current == null) return next;
 
@@ -90,8 +89,7 @@ namespace UnityUtils
 
             var args = leastArgConstructors
                 .GetParameters()
-                .Select(
-                    p =>
+                .Select(p =>
                     {
                         return p switch
                         {
@@ -110,16 +108,18 @@ namespace UnityUtils
 
         public static IEnumerable<Type> GetSubclasses(this Type type) => SameOrSubclassCache.Get(type);
 
-        public static IEnumerable<FieldInfo> GetFieldsByAttribute(
+        public static IEnumerable<(FieldInfo fieldInfo, Attribute attribute)> GetFieldsByAttribute(
             Type type,
             Type attributeType,
-            bool searchInheritance = false)
+            bool searchInheritance = false,
+            BindingFlags bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance)
         {
             if (!attributeType.IsSubclassOf(typeof(Attribute)))
                 throw new ArgumentNullException($"{attributeType.FullName} is not an attribute");
 
-            return type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(fieldInfo => fieldInfo.GetCustomAttribute(attributeType, searchInheritance) != null);
+            return type.GetFields(bindingFlags)
+                .Select(f => (fieldInfo: f, attribute: f.GetCustomAttribute(attributeType, searchInheritance)))
+                .Where(t => t.attribute != null);
         }
 
         public static IEnumerable<(Type type, T attachedAttribute)> GetTypesWithAttribute<T>(
@@ -254,7 +254,7 @@ namespace UnityUtils
 
         private static class SameOrSubclassCache
         {
-            private static readonly Dictionary<Type, Type[]> Cache = new();
+            private static readonly Dictionary<Type, Type[]> Cache = new ();
 
             public static IEnumerable<Type> Get(Type baseType)
             {
@@ -277,7 +277,7 @@ namespace UnityUtils
 
         private static class TypeHierarchyCache
         {
-            private static readonly Dictionary<Type, TypeHierarchy> Cache = new();
+            private static readonly Dictionary<Type, TypeHierarchy> Cache = new ();
 
             public static TypeHierarchy GetOrFind(Type type)
             {
@@ -308,7 +308,7 @@ namespace UnityUtils
 
         private static class IsSameOrSubClassCache
         {
-            private static readonly Dictionary<Type, SubClassCache> Cache = new();
+            private static readonly Dictionary<Type, SubClassCache> Cache = new ();
 
             public static bool Check(Type potentialDescendant, Type? potentialBase)
             {
@@ -336,8 +336,8 @@ namespace UnityUtils
             //TODO: this seems to slow things down -> we might need to give objects a bigger capacity initially so it doesn't keep doubling
             private class SubClassCache
             {
-                private readonly HashSet<Type> _knownNonSubTypes = new();
-                private readonly HashSet<Type> _knownSubTypes = new();
+                private readonly HashSet<Type> _knownNonSubTypes = new ();
+                private readonly HashSet<Type> _knownSubTypes = new ();
 
                 public void SetCache(Type? type, bool isSubType)
                 {
