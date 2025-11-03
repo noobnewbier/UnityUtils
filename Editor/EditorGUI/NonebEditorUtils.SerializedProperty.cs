@@ -374,11 +374,14 @@ namespace UnityUtils.Editor
                 case SerializedPropertyType.Generic:
                 default:
                 {
-                    var boxed = property.boxedValue;
+                    if (!property.isArray)
+                    {
+                        var boxed = property.boxedValue;
 
-                    if (boxed != null)
-                        // easy way out - no need to do complicated reflection crap
-                        return boxed.GetType();
+                        if (boxed != null)
+                            // easy way out - no need to do complicated reflection crap
+                            return boxed.GetType();
+                    }
 
                     /*
                      * This seems to be broken on recursive data structure, so if we can't get the boxed value we are borked here.
