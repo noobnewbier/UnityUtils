@@ -33,7 +33,8 @@ namespace UnityUtils
                 if (playerLoopList[i].type == systemType)
                     return i;
 
-            throw new Exception("Target PlayerLoopSystem does not found. Type:" + systemType.FullName);
+            //Note: when I am not lazy make it so this don't throw
+            throw new InvalidOperationException("Target PlayerLoopSystem does not found. Type:" + systemType.FullName);
         }
 
         private static PlayerLoopSystem[] InsertRunner(
