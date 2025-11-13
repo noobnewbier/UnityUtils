@@ -45,6 +45,47 @@ namespace UnityUtils.Editor
             }
         }
 
+        public class ErrorColorScope : IDisposable
+        {
+            private readonly Color _cacheColor;
+            private readonly bool _hasError;
+            private bool _disposed;
+
+            public ErrorColorScope(bool hasError = true)
+            {
+                _hasError = hasError;
+                _cacheColor = GUI.color;
+                if (_hasError) GUI.color = Color.red;
+            }
+
+            public void Dispose()
+            {
+                DoDispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void DoDispose(bool disposing)
+            {
+                if (_disposed)
+                    return;
+
+                if (disposing)
+                    CloseScope();
+
+                _disposed = true;
+            }
+
+            private void CloseScope()
+            {
+                if (_hasError) GUI.color = _cacheColor;
+            }
+
+            ~ErrorColorScope()
+            {
+                DoDispose(false);
+            }
+        }
+
         public class GizmosColorScope : IDisposable
         {
             private readonly Color _cacheColor;
