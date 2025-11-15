@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityUtils.Serialization;
@@ -8,6 +9,7 @@ namespace UnityUtils.Editor
     [CustomPropertyDrawer(typeof(SerializableDictionary<,>.SerializableKvPair))]
     public class SerializableKvPairDrawer : PropertyDrawer
     {
+        private readonly Regex _unityDefaultLabelMatcher = new ("Element [0-9]+");
         //One day we might want to put this on the editor folder to use our utils, but for now this suffice 
         private SerializedProperty _keyProperty = null!;
         private SerializedProperty _valueProperty = null!;
@@ -34,13 +36,18 @@ namespace UnityUtils.Editor
         {
             FindProperties(property);
 
-            //overriding the label - it's never that useful to have "Element {num}" over this.
-            const string labelPrefix = "Element "; // Unity's label by default - "Element {Index}".
-            var indexString = int.TryParse(new string(label.text.Skip(labelPrefix.Length).ToArray()), out var result) ?
-                result.ToString() :
-                "?";
-            var keyInfo = _keyProperty.GetTargetObjectOfProperty()?.ToString();
-            if (!string.IsNullOrWhiteSpace(keyInfo)) label.text = $"({indexString}) {keyInfo}";
+            var indexString = label.text;
+            if (_unityDefaultLabelMatcher.IsMatch(indexString))
+            {
+                //overriding the label - it's never that useful to have "Element {num}" over this.
+                const string labelPrefix = "Element "; // Unity's label by default - "Element {Index}".
+                indexString = int.TryParse(new (label.text.Skip(labelPrefix.Length).ToArray()), out var result) ?
+                    result.ToString() :
+                    "?";
+
+                var keyInfo = _keyProperty.GetTargetObjectOfProperty()?.ToString();
+                if (!string.IsNullOrWhiteSpace(keyInfo) && !label.text.Contains(keyInfo)) label.text = $"({indexString}) {keyInfo}";
+            }
 
             if (!IsKeyCompact)
             {
