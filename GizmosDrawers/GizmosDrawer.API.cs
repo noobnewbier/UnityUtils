@@ -210,5 +210,12 @@ namespace UnityUtils
             var request = new LabelRequest(color, duration, label, position);
             Request(request);
         }
+
+        [Conditional("UNITY_EDITOR")]
+        public static void DrawDynamicLabel(Vector3 position, string label, Color color, float duration = 0f)
+        {
+            var request = new DynamicLabelRequest(color, duration, label, position);
+            Request(request);
+        }
     }
 }

@@ -8,21 +8,21 @@ namespace UnityUtils
     {
         private abstract class DrawRequest
         {
-            private readonly Color _color;
+            protected readonly Color Color;
 
             protected DrawRequest(Color color, float duration)
             {
-                _color = color;
+                Color = color;
                 Duration = duration;
             }
 
-            public float Duration { get; set; }
+            public float Duration { get; }
             public float Timer { get; set; }
             public bool IsExpired => Timer > Duration;
 
             public void Draw()
             {
-                using (new NonebEditorGUI.GizmosColorScope(_color))
+                using (new NonebEditorGUI.GizmosColorScope(Color))
                 {
                     OnDraw();
                 }
@@ -178,18 +178,144 @@ namespace UnityUtils
 
         private class LabelRequest : DrawRequest
         {
+            private readonly GUIContent _labelContent;
             private readonly Vector3 _position;
-            private readonly string _text;
 
             public LabelRequest(Color color, float duration, string text, Vector3 position) : base(color, duration)
             {
-                _text = text;
+                _labelContent = new (text);
                 _position = position;
             }
 
             protected override void OnDraw()
             {
-                Handles.Label(_position, _text);
+                Handles.Label(_position, _labelContent);
+            }
+        }
+
+        /// <summary>
+        /// Draw label with dynamically, so they become smaller and eventually fade away when you can't see them as your camera zooms out.
+        /// </summary>
+        private class DynamicLabelRequest : DrawRequest
+        {
+            private static readonly GUIStyle LabelStyle = new ()
+            {
+                alignment = TextAnchor.MiddleCenter
+            };
+            private readonly GUIContent _labelContent;
+            private readonly float _maxOffsetFromCenter;
+            private readonly Vector3 _position;
+
+            public DynamicLabelRequest(Color color, float duration, string text, Vector3 position, float maxOffsetFromCenter = 1) : base(color, duration)
+            {
+                _position = position;
+                _maxOffsetFromCenter = maxOffsetFromCenter;
+                _labelContent = new (text);
+            }
+
+            protected override void OnDraw()
+            {
+                DrawCenteredLabel();
+            }
+
+            /// <summary>
+            /// <see cref="Handles.Label(UnityEngine.Vector3,string)" /> can't center the label properly.
+            /// Root of the problem is that <see cref="HandleUtility.WorldPointToSizedRect" /> isn't taking rects maxX/Y into account,
+            /// This leads to a problem where the rect is essentially stretched to the left a bit, and as a result when trying to center the item,
+            /// the text will go a bit "righter" than it should be.
+            /// Until Unity(current ver: 2020.2.7f1) fix this, this should do the trick
+            /// </summary>
+            private void DrawCenteredLabel()
+            {
+                //behind the camera
+                if (HandleUtility.WorldToGUIPointWithDepth(_position).z < 0.0)
+                    return;
+
+                var guiPoint = HandleUtility.WorldToGUIPoint(_position);
+
+                //stop drawing the label if the text will be so small that it's invisible
+                //define font size in a way it is more less around the same portion of the bounding rect
+                const float fontSizeToBoundingRectRatio = 0.125f;
+                var viewCameraTransform = SceneView.currentDrawingSceneView.camera.transform;
+                var cameraForward = viewCameraTransform.forward;
+                var viewForward = new Vector3(cameraForward.x, 0f, cameraForward.z).normalized;
+                //the magnitude is 0 when the camera is "upright", e.g when you click on the y-axis on the scene view
+                var viewRotation = viewForward.magnitude != 0f ?
+                    Quaternion.LookRotation(viewForward, Vector3.up) :
+                    Quaternion.identity;
+
+                var v1 = HandleUtility.WorldToGUIPoint(_position + viewRotation * Vector3.left * _maxOffsetFromCenter);
+                var v2 = HandleUtility.WorldToGUIPoint(_position + viewRotation * Vector3.right * _maxOffsetFromCenter);
+                var v3 = HandleUtility.WorldToGUIPoint(_position + viewRotation * Vector3.forward * _maxOffsetFromCenter);
+                var v4 = HandleUtility.WorldToGUIPoint(_position + viewRotation * Vector3.back * _maxOffsetFromCenter);
+                //Which vertices is which corner of the rect depends on the orientation of the camera
+                var minX = Mathf.Min
+                (
+                    v1.x,
+                    v2.x,
+                    v3.x,
+                    v4.x
+                );
+                var minY = Mathf.Min
+                (
+                    v1.y,
+                    v2.y,
+                    v3.y,
+                    v4.y
+                );
+                var maxX = Mathf.Max
+                (
+                    v1.x,
+                    v2.x,
+                    v3.x,
+                    v4.x
+                );
+                var maxY = Mathf.Max
+                (
+                    v1.y,
+                    v2.y,
+                    v3.y,
+                    v4.y
+                );
+                var boundingRect = new Rect
+                (
+                    minX,
+                    minY,
+                    maxX - minX,
+                    maxY - minY
+                );
+
+
+                const int maxFontSize = 14;
+                var fontSizeInFloat = boundingRect.height * fontSizeToBoundingRectRatio;
+                LabelStyle.fontSize = Mathf.Min(Mathf.RoundToInt(fontSizeInFloat), maxFontSize);
+                //These are just a magic number that feels right to me
+                const int minReadableFontSize = 6;
+                const float minVisibleAlpha = 0.5f;
+                //decreasing alpha when the user is further away from the text while avoiding drawing text that are practically not readable
+                LabelStyle.normal.textColor = new
+                (
+                    Color.r,
+                    Color.g,
+                    Color.b,
+                    fontSizeInFloat / minReadableFontSize
+                );
+
+                if (LabelStyle.normal.textColor.a > minVisibleAlpha)
+                {
+                    var size = LabelStyle.CalcSize(_labelContent);
+                    var rect = new Rect(guiPoint, size);
+                    rect.xMin -= size.x / 2;
+                    rect.xMax -= size.x / 2;
+                    rect.yMin -= size.y / 2;
+                    rect.yMax -= size.y / 2;
+
+                    Handles.BeginGUI();
+
+                    GUI.Label(LabelStyle.padding.Add(rect), _labelContent, LabelStyle);
+
+                    Handles.EndGUI();
+                }
             }
         }
     }
