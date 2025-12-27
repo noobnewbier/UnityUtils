@@ -204,7 +204,8 @@ namespace UnityUtils
             DrawLabel(position, label, color, duration);
         }
 
-        private static void DrawLabel(Vector3 position, string label, Color color, float duration = 0f)
+        [Conditional("UNITY_EDITOR")]
+        public static void DrawLabel(Vector3 position, string label, Color color, float duration = 0f)
         {
             var request = new LabelRequest(color, duration, label, position);
             Request(request);
