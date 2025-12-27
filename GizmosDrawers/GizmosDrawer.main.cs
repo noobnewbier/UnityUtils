@@ -3,13 +3,14 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Pool;
+using Object = UnityEngine.Object;
 
 namespace UnityUtils
 {
     [InitializeOnLoad]
     public partial class GizmosDrawer
     {
-        private static readonly HashSet<DrawRequest> Requests = new();
+        private static readonly HashSet<DrawRequest> Requests = new ();
 
         static GizmosDrawer()
         {
@@ -44,6 +45,7 @@ namespace UnityUtils
             Requests.Add(request);
         }
 
+        [ExecuteInEditMode]
         private class Runner : MonoBehaviour
         {
             private void Update()
