@@ -58,7 +58,7 @@ namespace UnityUtils
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void DrawSphere(Vector3 center, float radius, float duration = 0f, string label = "")
+        public static void DrawSphere(Vector3 center, float radius = 0.25f, float duration = 0f, string label = "")
         {
             DrawSphere(center, radius, Color.red, duration, label);
         }
