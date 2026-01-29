@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -49,6 +50,24 @@ namespace UnityUtils.Editor
         }
 
         public static IEnumerable<Object> LoadAllMainAssetsInFolder(string folderPath) => LoadAllAssetsInFolder<Object>(folderPath);
-        public static string ToProjectRelativePath(this string path) => path.Replace(Application.dataPath[..^6], string.Empty);
+
+        public static void CreateFile(string path, byte[] bytes)
+        {
+            File.WriteAllBytes(path, bytes);
+            ImportAsset(path);
+        }
+        
+        public static void ImportAsset(string path)
+        {
+            path = path.ToProjectRelativePath();
+            AssetDatabase.ImportAsset(path);
+        }
+
+        public static string ToProjectRelativePath(this string path)
+        {
+            if (!Path.IsPathRooted(path)) return path;
+            
+            return path.Replace(Application.dataPath[..^6], string.Empty);
+        }
     }
 }
