@@ -9,6 +9,14 @@ using Object = UnityEngine.Object;
 
 namespace UnityUtils.Editor
 {
+    /*
+     * todo:
+     * we need to organize this so ALL editor related scripts lives in exactly one class.
+     * currently we are running into the issue Unity have(i.e. wait am I looking for GUI or GUILayout or EditorGUI or whateverthenameisUtils/Style)
+     * if we don't do this it will only get worse at times goes.
+     *
+     * Note we can also integrate NonebGUIDrawer together for the whole package.
+     */
     public static partial class NonebEditorGUI
     {
         public static string GetPropertyBindingPath(string propertyName) => $"<{propertyName}>k__BackingField";
@@ -393,85 +401,95 @@ namespace UnityUtils.Editor
                 #endregion
             }
 
-            static FieldInfo? GetFieldViaPath(SerializedObject serializedObject, Type type, string pathToFieldFromType, string pathToType)
-            {
-                /*
-                 * In its most basic form, this method simply descend down the type hierarchy given the path (i.e. {pathToFieldFromType}.{pathToType})
-                 * however this is not always possible, in particular when the path includes array,
-                 * in which case to retrieve the field info we must find the instance of the array element we are "passing through", and walk down the type hierarchy of that element
-                 * this is because an array of element can often contains element of more derived type, for example object[] can contains any object from Foo to Baz.
-                 *
-                 * Of course, this is true for fields as well! However we aren't having that issue for now, so we are kicking the can down the road at the moment as that could get a bit more complicated.
-                 */
-                pathToFieldFromType = pathToFieldFromType.Trim('.');
-
-                if (!pathToFieldFromType.Contains('.')) return type.GetFieldIncludingParents(pathToFieldFromType);
-
-                Regex arrayElementRegex = new (@"(\.Array\.data\[[0-9]+\])");
-                var match = arrayElementRegex.Match(pathToFieldFromType);
-
-                if (match.Success)
-                {
-                    var arrayElementEndIndex = match.Index + match.Length;
-                    var pathToArrayElement = pathToFieldFromType[..arrayElementEndIndex];
-                    if (!string.IsNullOrEmpty(pathToType)) pathToArrayElement = $"{pathToType}.{pathToArrayElement}";
-                    var arrayElement = serializedObject.FindProperty(pathToArrayElement);
-
-                    var elementValue = GetTargetObjectOfProperty(arrayElement);
-                    var elementType = elementValue?.GetType();
-
-                    if (elementType == null)
-                    {
-                        var pathToArray = pathToFieldFromType[..match.Index];
-                        var arrayType = serializedObject.FindProperty(pathToArray).GetTargetType();
-                        if (arrayType != null) elementType = arrayType.GetTypeWithinCollection();
-                    }
-
-                    if (elementType == null)
-                    {
-                        Debug.LogError("Something went wrong, should never have got here.");
-
-                        return null;
-                    }
-
-                    return GetFieldViaPath(
-                        serializedObject,
-                        elementType,
-                        pathToFieldFromType[arrayElementEndIndex..],
-                        arrayElement.propertyPath
-                    );
-                }
-
-                // If the field is nested in subclass, going down the path to find the field at the leaf level.
-                var parentType = type;
-                FieldInfo? currentFieldInfo = null;
-
-                foreach (var fieldNameInEachLevel in pathToFieldFromType.Split('.'))
-                {
-                    currentFieldInfo = parentType.GetFieldIncludingParents(fieldNameInEachLevel);
-
-                    if (currentFieldInfo == null)
-                    {
-                        Debug.LogError(
-                            $"Couldn't find type given the field path({pathToFieldFromType}). This is unexpected, is the path correct?"
-                        );
-
-                        return null;
-                    }
-
-                    parentType = currentFieldInfo.FieldType;
-                }
-
-                return currentFieldInfo;
-            }
 
             static Type? GetType(SerializedProperty property)
             {
-                var parentType = property.serializedObject.targetObject.GetType();
-                var fi = GetFieldViaPath(property.serializedObject, parentType, property.propertyPath, string.Empty);
+                var fi = property.GetFieldInfo();
 
                 return fi?.FieldType;
             }
+        }
+
+        public static FieldInfo? GetFieldInfo(this SerializedProperty property)
+        {
+            var parentType = property.serializedObject.targetObject.GetType();
+            var fi = GetFieldViaPath(property.serializedObject, parentType, property.propertyPath, string.Empty);
+
+            return fi;
+        }
+
+        static FieldInfo? GetFieldViaPath(SerializedObject serializedObject, Type type, string pathToFieldFromType, string pathToType)
+        {
+            /*
+             * In its most basic form, this method simply descend down the type hierarchy given the path (i.e. {pathToFieldFromType}.{pathToType})
+             * however this is not always possible, in particular when the path includes array,
+             * in which case to retrieve the field info we must find the instance of the array element we are "passing through", and walk down the type hierarchy of that element
+             * this is because an array of element can often contains element of more derived type, for example object[] can contains any object from Foo to Baz.
+             *
+             * Of course, this is true for fields as well! However we aren't having that issue for now, so we are kicking the can down the road at the moment as that could get a bit more complicated.
+             */
+            pathToFieldFromType = pathToFieldFromType.Trim('.');
+
+            if (!pathToFieldFromType.Contains('.')) return type.GetFieldIncludingParents(pathToFieldFromType);
+
+            Regex arrayElementRegex = new (@"(\.Array\.data\[[0-9]+\])");
+            var match = arrayElementRegex.Match(pathToFieldFromType);
+
+            if (match.Success)
+            {
+                var arrayElementEndIndex = match.Index + match.Length;
+                var pathToArrayElement = pathToFieldFromType[..arrayElementEndIndex];
+                if (!string.IsNullOrEmpty(pathToType)) pathToArrayElement = $"{pathToType}.{pathToArrayElement}";
+                var arrayElement = serializedObject.FindProperty(pathToArrayElement);
+
+                var elementValue = GetTargetObjectOfProperty(arrayElement);
+                var elementType = elementValue?.GetType();
+
+                if (elementType == null)
+                {
+                    var pathToArray = pathToFieldFromType[..match.Index];
+                    var arrayType = serializedObject.FindProperty(pathToArray).GetTargetType();
+                    if (arrayType != null) elementType = arrayType.GetTypeWithinCollection();
+                }
+
+                if (elementType == null)
+                {
+                    Debug.LogError("Something went wrong, should never have got here.");
+
+                    return null;
+                }
+
+                return GetFieldViaPath
+                (
+                    serializedObject,
+                    elementType,
+                    pathToFieldFromType[arrayElementEndIndex..],
+                    arrayElement.propertyPath
+                );
+            }
+
+            // If the field is nested in subclass, going down the path to find the field at the leaf level.
+            var parentType = type;
+            FieldInfo? currentFieldInfo = null;
+
+            foreach (var fieldNameInEachLevel in pathToFieldFromType.Split('.'))
+            {
+                currentFieldInfo = parentType.GetFieldIncludingParents(fieldNameInEachLevel);
+
+                if (currentFieldInfo == null)
+                {
+                    Debug.LogError
+                    (
+                        $"Couldn't find type given the field path({pathToFieldFromType}). This is unexpected, is the path correct?"
+                    );
+
+                    return null;
+                }
+
+                parentType = currentFieldInfo.FieldType;
+            }
+
+            return currentFieldInfo;
         }
 
 

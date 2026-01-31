@@ -11,6 +11,17 @@ namespace UnityUtils.Editor
     [InitializeOnLoad]
     public static partial class NonebEditorGUI
     {
+        private static readonly GUIContent[] xyzLabel =
+        {
+            new ("X"),
+            new ("Y"),
+            new ("Z")
+        };
+        private static readonly float[] vec3DelayedFloatsValues =
+        {
+            0, 0, 0
+        };
+
         static NonebEditorGUI()
         {
             CustomPropertyDrawerTypeCache.Clear();
@@ -141,6 +152,77 @@ namespace UnityUtils.Editor
             } while (property.Next(false) && depth <= property.depth);
 
             return result;
+        }
+
+        public static void DelayedVector3Field(Rect position, SerializedProperty property, GUIContent label)
+        {
+            label = EditorGUI.BeginProperty(position, label, property);
+            EditorGUI.BeginChangeCheck();
+            var value = DelayedVector3Field(position, label, property.vector3Value);
+            if (EditorGUI.EndChangeCheck())
+                property.vector3Value = value;
+            EditorGUI.EndProperty();
+        }
+
+        public static Vector3 DelayedVector3Field(Rect position, GUIContent label, Vector3 value)
+        {
+            var foldoutHash = "Foldout".GetHashCode(); // this is EditorGUI.s_FoldoutHash, I just didn't want to use reflection for this.
+            var controlId = GUIUtility.GetControlID(foldoutHash, FocusType.Keyboard, position);
+
+            /*
+             * Unity's implementation for vector3Field uses MultiFieldPrefixLabel instead,
+             * they seem to do edge case handling for wide mode, but I am not too keen on that.
+             * If this is a problem we can do it later on.
+             */
+            position = EditorGUI.PrefixLabel(position, controlId, label);
+            position.height = 18f;
+            return DelayedVector3Field(position, value);
+        }
+
+        private static Vector3 DelayedVector3Field(Rect position, Vector3 value)
+        {
+            vec3DelayedFloatsValues[0] = value.x;
+            vec3DelayedFloatsValues[1] = value.y;
+            vec3DelayedFloatsValues[2] = value.z;
+            position.height = 18f;
+            EditorGUI.BeginChangeCheck();
+            MultiDelayedFloatField(position, xyzLabel, vec3DelayedFloatsValues);
+            if (EditorGUI.EndChangeCheck())
+            {
+                value.x = vec3DelayedFloatsValues[0];
+                value.y = vec3DelayedFloatsValues[1];
+                value.z = vec3DelayedFloatsValues[2];
+            }
+
+            return value;
+        }
+
+        private static void MultiDelayedFloatField(
+            Rect position,
+            GUIContent[] subLabels,
+            float[] values)
+        {
+            var length = values.Length;
+            var num = (position.width - (length - 1) * 4f) / length;
+            var position1 = new Rect(position) { width = num };
+            var labelWidth = EditorGUIUtility.labelWidth;
+            var indentLevel = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+            for (var index = 0; index < values.Length; ++index)
+            {
+                EditorGUIUtility.labelWidth = CalcLabelWidth(subLabels[index]);
+                values[index] = EditorGUI.DelayedFloatField(position1, subLabels[index], values[index]);
+                position1.x += num + 4f;
+            }
+
+            EditorGUIUtility.labelWidth = labelWidth;
+            EditorGUI.indentLevel = indentLevel;
+        }
+
+        public static float CalcLabelWidth(GUIContent label)
+        {
+            var labelWidth = EditorStyles.label.CalcSize(label).x;
+            return labelWidth;
         }
 
         private static class CustomPropertyDrawerTypeCache
