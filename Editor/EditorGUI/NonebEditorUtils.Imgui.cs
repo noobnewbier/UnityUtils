@@ -21,6 +21,16 @@ namespace UnityUtils.Editor
         {
             0, 0, 0
         };
+        
+        private static readonly GUIContent[] xyLabel =
+        {
+            new ("X"),
+            new ("Y"),
+        };
+        private static readonly float[] vec2DelayedFloatsValues =
+        {
+            0, 0
+        };
 
         static NonebEditorGUI()
         {
@@ -154,6 +164,8 @@ namespace UnityUtils.Editor
             return result;
         }
 
+        #region Delayed Vec3
+
         public static void DelayedVector3Field(Rect position, SerializedProperty property, GUIContent label)
         {
             label = EditorGUI.BeginProperty(position, label, property);
@@ -196,6 +208,57 @@ namespace UnityUtils.Editor
 
             return value;
         }
+
+        #endregion
+
+        #region Delayed Vec2
+
+        /*
+         * Carbon copy of delayed vec3. If one is fucked both is fucked.
+         */
+        
+        public static void DelayedVector2Field(Rect position, SerializedProperty property, GUIContent label)
+        {
+            label = EditorGUI.BeginProperty(position, label, property);
+            EditorGUI.BeginChangeCheck();
+            var value = DelayedVector2Field(position, label, property.vector2Value);
+            if (EditorGUI.EndChangeCheck())
+                property.vector2Value = value;
+            EditorGUI.EndProperty();
+        }
+
+        public static Vector2 DelayedVector2Field(Rect position, GUIContent label, Vector2 value)
+        {
+            var foldoutHash = "Foldout".GetHashCode(); // this is EditorGUI.s_FoldoutHash, I just didn't want to use reflection for this.
+            var controlId = GUIUtility.GetControlID(foldoutHash, FocusType.Keyboard, position);
+
+            /*
+             * Unity's implementation for vector3Field uses MultiFieldPrefixLabel instead,
+             * they seem to do edge case handling for wide mode, but I am not too keen on that.
+             * If this is a problem we can do it later on.
+             */
+            position = EditorGUI.PrefixLabel(position, controlId, label);
+            position.height = 18f;
+            return DelayedVector2Field(position, value);
+        }
+
+        private static Vector2 DelayedVector2Field(Rect position, Vector2 value)
+        {
+            vec2DelayedFloatsValues[0] = value.x;
+            vec2DelayedFloatsValues[1] = value.y;
+            position.height = 18f;
+            EditorGUI.BeginChangeCheck();
+            MultiDelayedFloatField(position, xyLabel, vec2DelayedFloatsValues);
+            if (EditorGUI.EndChangeCheck())
+            {
+                value.x = vec2DelayedFloatsValues[0];
+                value.y = vec2DelayedFloatsValues[1];
+            }
+
+            return value;
+        }
+
+        #endregion
 
         private static void MultiDelayedFloatField(
             Rect position,
