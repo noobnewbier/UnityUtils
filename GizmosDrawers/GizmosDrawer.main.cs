@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -22,7 +23,10 @@ namespace UnityUtils
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void OnRuntimeInitialized()
         {
-            CreateRunnerIfNotExist();
+            if (Application.isEditor)
+            {
+                CreateRunnerIfNotExist();
+            }
         }
 
         private static void CreateRunnerIfNotExist()
@@ -58,6 +62,14 @@ namespace UnityUtils
         [ExecuteInEditMode]
         private class Runner : MonoBehaviour
         {
+            private void Awake()
+            {
+                if (!Application.isEditor)
+                {
+                    Destroy(gameObject);
+                }
+            }
+
             private void Update()
             {
                 using (CollectionPool<HashSet<DrawRequest>, DrawRequest>.Get(out var expiredRequests))
