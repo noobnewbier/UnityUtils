@@ -28,8 +28,17 @@ namespace UnityUtils
         private static void CreateRunnerIfNotExist()
         {
             if (!Application.isPlaying)
-                if (Resources.FindObjectsOfTypeAll<Runner>().Any())
+            {
+                var runners = Resources.FindObjectsOfTypeAll<Runner>();
+                if (runners.Any())
+                {
+                    foreach (var run in runners)
+                    {
+                        run.gameObject.SetActive(true);
+                    }
                     return;
+                }
+            }
 
             /*
              * Unity doesn't run gizmos drawing if the object itself is hidden.
