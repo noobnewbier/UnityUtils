@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
@@ -15,7 +16,10 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawLine(Vector3 from, Vector3 to, Color color, float duration = 0f, string label = "")
         {
-            var request = new LineRequest(color, duration, from, to);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new LineRequest(color, duration, from, to, key);
+
             Request(request);
             DrawLabel(from, label, color, duration);
         }
@@ -29,13 +33,16 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawLine(Vector3[] points, Color color, float duration = 0f, string label = "")
         {
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+
             if (!points.Any()) return;
 
             for (var i = 0; i < points.Length - 1; i++)
             {
                 var from = points[i];
                 var to = points[i + 1];
-                var request = new LineRequest(color, duration, from, to);
+                var request = new LineRequest(color, duration, from, to, key);
 
                 Request(request);
             }
@@ -52,7 +59,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireSphere(Vector3 center, float radius, Color color, float duration = 0f, string label = "")
         {
-            var request = new WireSphereRequest(color, duration, center, radius);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new WireSphereRequest(color, duration, center, radius, key);
             Request(request);
             DrawLabel(center, label, color, duration);
         }
@@ -66,7 +75,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawSphere(Vector3 center, float radius, Color color, float duration = 0f, string label = "")
         {
-            var request = new SphereRequest(color, duration, center, radius);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new SphereRequest(color, duration, center, radius, key);
             Request(request);
             DrawLabel(center, label, color, duration);
         }
@@ -80,7 +91,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireCube(Vector3 center, Vector3 size, Color color, float duration = 0f, string label = "")
         {
-            var request = new WireCubeRequest(color, duration, center, size);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new WireCubeRequest(color, duration, center, size, key);
             Request(request);
             DrawLabel(center, label, color, duration);
         }
@@ -94,7 +107,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawCube(Vector3 center, Vector3 size, Color color, float duration = 0f, string label = "")
         {
-            var request = new CubeRequest(color, duration, center, size);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new CubeRequest(color, duration, center, size, key);
             Request(request);
             DrawLabel(center, label, color, duration);
         }
@@ -108,8 +123,10 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawRay(Vector3 from, Vector3 direction, Color color, float length = 2.5f, float duration = 0f, string label = "")
         {
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
             var to = from + direction.normalized * length;
-            var request = new LineRequest(color, duration, from, to);
+            var request = new LineRequest(color, duration, from, to, key);
             Request(request);
             DrawLabel(from, label, color, duration);
         }
@@ -123,7 +140,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0f, string label = "")
         {
-            var request = new MeshRequest(color, duration, mesh, position, rotation, scale, false);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new MeshRequest(color, duration, mesh, position, rotation, scale, false, key);
             Request(request);
             DrawLabel(position, label, color, duration);
         }
@@ -137,7 +156,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawMesh(Mesh mesh, Vector3 position, Color color, float duration = 0f, string label = "")
         {
-            var request = new MeshRequest(color, duration, mesh, position, Quaternion.identity, Vector3.one, false);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new MeshRequest(color, duration, mesh, position, Quaternion.identity, Vector3.one, false, key);
             Request(request);
             DrawLabel(position, label, color, duration);
         }
@@ -151,7 +172,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, Color color, float duration = 0f, string label = "")
         {
-            var request = new MeshRequest(color, duration, mesh, position, rotation, scale, true);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new MeshRequest(color, duration, mesh, position, rotation, scale, true, key);
             Request(request);
             DrawLabel(position, label, color, duration);
         }
@@ -165,7 +188,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireMesh(Mesh mesh, Vector3 position, Color color, float duration = 0f, string label = "")
         {
-            var request = new MeshRequest(color, duration, mesh, position, Quaternion.identity, Vector3.one, true);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new MeshRequest(color, duration, mesh, position, Quaternion.identity, Vector3.one, true, key);
             Request(request);
             DrawLabel(position, label, color, duration);
         }
@@ -179,7 +204,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireMesh(Mesh mesh, Color color, float duration = 0f, string label = "")
         {
-            var request = new MeshRequest(color, duration, mesh, Vector3.zero, Quaternion.identity, Vector3.one, true);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new MeshRequest(color, duration, mesh, Vector3.zero, Quaternion.identity, Vector3.one, true, key);
             Request(request);
             DrawLabel(Vector3.zero, label, color, duration);
         }
@@ -199,7 +226,9 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireDisc(float rad, Vector3 position, Color color, float duration = 0f, string label = "")
         {
-            var request = new WireDiscRequest(color, duration, rad, position);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new WireDiscRequest(color, duration, rad, position, key);
             Request(request);
             DrawLabel(position, label, color, duration);
         }
@@ -207,15 +236,48 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawLabel(Vector3 position, string label, Color color, float duration = 0f)
         {
-            var request = new LabelRequest(color, duration, label, position);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new LabelRequest(color, duration, label, position, key);
             Request(request);
         }
 
         [Conditional("UNITY_EDITOR")]
         public static void DrawDynamicLabel(Vector3 position, string label, Color color, float duration = 0f)
         {
-            var request = new DynamicLabelRequest(color, duration, label, position);
+            _keyStacks.TryPeek(out var key);
+            key ??= string.Empty;
+            var request = new DynamicLabelRequest(color, duration, label, position, key: key);
             Request(request);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        public static void Dismiss(string key)
+        {
+            Requests.RemoveWhere(r => r.Key == key);
+        }
+
+        public static IDisposable ForeverTillDismiss(string key)
+        {
+            // Sucks that this is not free in release build but we will live with it.
+            return new ForeverTillDismissScope(key);
+        }
+
+        private class ForeverTillDismissScope : IDisposable
+        {
+            public ForeverTillDismissScope(string key)
+            {
+#if UNITY_EDITOR
+                _keyStacks.Push(key);
+#endif
+            }
+
+            public void Dispose()
+            {
+#if UNITY_EDITOR
+                _keyStacks.Pop();
+#endif
+            }
         }
     }
 }

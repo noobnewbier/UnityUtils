@@ -8,17 +8,36 @@ namespace UnityUtils
     {
         private abstract class DrawRequest
         {
+            public readonly string Key;
+            
             protected readonly Color Color;
 
-            protected DrawRequest(Color color, float duration)
+            protected DrawRequest(Color color, float duration, string key)
             {
                 Color = color;
                 Duration = duration;
+                Key = key;
             }
 
             public float Duration { get; }
             public float Timer { get; set; }
-            public bool IsExpired => Timer > Duration;
+            public bool IsExpired
+            {
+                get
+                {
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    if (Duration == -1)
+                    {
+                        if (string.IsNullOrEmpty(Key))
+                        {
+                            Debug.LogError("I refuse to let anyone without a key to be drawn forever, as that implies it would just you know, stick around literally till end of time.");
+                            return true;
+                        }
+                        return false;
+                    }
+                    return Timer > Duration;
+                }
+            }
 
             public void Draw()
             {
@@ -36,7 +55,7 @@ namespace UnityUtils
             private readonly Vector3 _from;
             private readonly Vector3 _to;
 
-            public LineRequest(Color color, float duration, Vector3 from, Vector3 to) : base(color, duration)
+            public LineRequest(Color color, float duration, Vector3 from, Vector3 to, string key = "") : base(color, duration, key)
             {
                 _from = from;
                 _to = to;
@@ -53,7 +72,7 @@ namespace UnityUtils
             private readonly Vector3 _center;
             private readonly float _radius;
 
-            public WireSphereRequest(Color color, float duration, Vector3 center, float radius) : base(color, duration)
+            public WireSphereRequest(Color color, float duration, Vector3 center, float radius, string key = "") : base(color, duration, key)
             {
                 _center = center;
                 _radius = radius;
@@ -70,7 +89,7 @@ namespace UnityUtils
             private readonly Vector3 _center;
             private readonly float _radius;
 
-            public SphereRequest(Color color, float duration, Vector3 center, float radius) : base(color, duration)
+            public SphereRequest(Color color, float duration, Vector3 center, float radius, string key = "") : base(color, duration, key)
             {
                 _center = center;
                 _radius = radius;
@@ -87,7 +106,7 @@ namespace UnityUtils
             private readonly Vector3 _center;
             private readonly Vector3 _size;
 
-            public WireCubeRequest(Color color, float duration, Vector3 center, Vector3 size) : base(color, duration)
+            public WireCubeRequest(Color color, float duration, Vector3 center, Vector3 size, string key = "") : base(color, duration, key)
             {
                 _center = center;
                 _size = size;
@@ -104,7 +123,7 @@ namespace UnityUtils
             private readonly Vector3 _center;
             private readonly Vector3 _size;
 
-            public CubeRequest(Color color, float duration, Vector3 center, Vector3 size) : base(color, duration)
+            public CubeRequest(Color color, float duration, Vector3 center, Vector3 size, string key = "") : base(color, duration, key)
             {
                 _center = center;
                 _size = size;
@@ -124,7 +143,7 @@ namespace UnityUtils
             private readonly Quaternion _rotation;
             private readonly Vector3 _scale;
 
-            public MeshRequest(Color color, float duration, Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, bool isWired) : base(color, duration)
+            public MeshRequest(Color color, float duration, Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, bool isWired, string key = "") : base(color, duration, key)
             {
                 _mesh = mesh;
                 _position = position;
@@ -147,7 +166,7 @@ namespace UnityUtils
             private readonly Vector3 _position;
             private readonly float _rad;
 
-            public WireDiscRequest(Color color, float duration, float rad, Vector3 position) : base(color, duration)
+            public WireDiscRequest(Color color, float duration, float rad, Vector3 position, string key = "") : base(color, duration, key)
             {
                 _rad = rad;
                 _position = position;
@@ -181,7 +200,7 @@ namespace UnityUtils
             private readonly GUIContent _labelContent;
             private readonly Vector3 _position;
 
-            public LabelRequest(Color color, float duration, string text, Vector3 position) : base(color, duration)
+            public LabelRequest(Color color, float duration, string text, Vector3 position, string key = "") : base(color, duration, key)
             {
                 _labelContent = new (text);
                 _position = position;
@@ -206,7 +225,7 @@ namespace UnityUtils
             private readonly float _maxOffsetFromCenter;
             private readonly Vector3 _position;
 
-            public DynamicLabelRequest(Color color, float duration, string text, Vector3 position, float maxOffsetFromCenter = 1) : base(color, duration)
+            public DynamicLabelRequest(Color color, float duration, string text, Vector3 position, float maxOffsetFromCenter = 1, string key = "") : base(color, duration, key)
             {
                 _position = position;
                 _maxOffsetFromCenter = maxOffsetFromCenter;
