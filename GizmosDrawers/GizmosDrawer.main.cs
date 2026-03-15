@@ -11,7 +11,7 @@ namespace UnityUtils
     public partial class GizmosDrawer
     {
         private static readonly HashSet<DrawRequest> Requests = new ();
-        private static readonly Stack<string> _keyStacks = new ();
+        private static readonly Stack<WeakReference> KeyStacks = new ();
 
         static GizmosDrawer()
         {

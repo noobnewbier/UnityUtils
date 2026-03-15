@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 using UnityUtils.Editor;
 
@@ -8,15 +9,15 @@ namespace UnityUtils
     {
         private abstract class DrawRequest
         {
-            public readonly string Key;
+            public readonly WeakReference? DurationKey;
             
             protected readonly Color Color;
 
-            protected DrawRequest(Color color, float duration, string key)
+            protected DrawRequest(Color color, float duration, WeakReference? key)
             {
                 Color = color;
                 Duration = duration;
-                Key = key;
+                DurationKey = key;
             }
 
             public float Duration { get; }
@@ -26,13 +27,20 @@ namespace UnityUtils
                 get
                 {
                     // ReSharper disable once CompareOfFloatsByEqualityOperator
-                    if (Duration == -1)
+                    if (DurationKey != null)
                     {
-                        if (string.IsNullOrEmpty(Key))
+                        if (DurationKey is not { IsAlive: true })
                         {
-                            Debug.LogError("I refuse to let anyone without a key to be drawn forever, as that implies it would just you know, stick around literally till end of time.");
                             return true;
                         }
+                        
+                        if (DurationKey.Target is UnityEngine.Object uObj)
+                        {
+                            // in case of unity's object, it's also expired if it's destroyed.
+                            return uObj == null;
+                        }
+                        
+                        // special case, duration is -1 means we are relying on key for their life time.
                         return false;
                     }
                     return Timer > Duration;
@@ -55,7 +63,7 @@ namespace UnityUtils
             private readonly Vector3 _from;
             private readonly Vector3 _to;
 
-            public LineRequest(Color color, float duration, Vector3 from, Vector3 to, string key = "") : base(color, duration, key)
+            public LineRequest(Color color, float duration, Vector3 from, Vector3 to, WeakReference? key = null) : base(color, duration, key)
             {
                 _from = from;
                 _to = to;
@@ -72,7 +80,7 @@ namespace UnityUtils
             private readonly Vector3 _center;
             private readonly float _radius;
 
-            public WireSphereRequest(Color color, float duration, Vector3 center, float radius, string key = "") : base(color, duration, key)
+            public WireSphereRequest(Color color, float duration, Vector3 center, float radius, WeakReference? key = null) : base(color, duration, key)
             {
                 _center = center;
                 _radius = radius;
@@ -89,7 +97,7 @@ namespace UnityUtils
             private readonly Vector3 _center;
             private readonly float _radius;
 
-            public SphereRequest(Color color, float duration, Vector3 center, float radius, string key = "") : base(color, duration, key)
+            public SphereRequest(Color color, float duration, Vector3 center, float radius, WeakReference? key = null) : base(color, duration, key)
             {
                 _center = center;
                 _radius = radius;
@@ -106,7 +114,7 @@ namespace UnityUtils
             private readonly Vector3 _center;
             private readonly Vector3 _size;
 
-            public WireCubeRequest(Color color, float duration, Vector3 center, Vector3 size, string key = "") : base(color, duration, key)
+            public WireCubeRequest(Color color, float duration, Vector3 center, Vector3 size, WeakReference? key = null) : base(color, duration, key)
             {
                 _center = center;
                 _size = size;
@@ -123,7 +131,7 @@ namespace UnityUtils
             private readonly Vector3 _center;
             private readonly Vector3 _size;
 
-            public CubeRequest(Color color, float duration, Vector3 center, Vector3 size, string key = "") : base(color, duration, key)
+            public CubeRequest(Color color, float duration, Vector3 center, Vector3 size, WeakReference? key = null) : base(color, duration, key)
             {
                 _center = center;
                 _size = size;
@@ -143,7 +151,7 @@ namespace UnityUtils
             private readonly Quaternion _rotation;
             private readonly Vector3 _scale;
 
-            public MeshRequest(Color color, float duration, Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, bool isWired, string key = "") : base(color, duration, key)
+            public MeshRequest(Color color, float duration, Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, bool isWired, WeakReference? key = null) : base(color, duration, key)
             {
                 _mesh = mesh;
                 _position = position;
@@ -166,7 +174,7 @@ namespace UnityUtils
             private readonly Vector3 _position;
             private readonly float _rad;
 
-            public WireDiscRequest(Color color, float duration, float rad, Vector3 position, string key = "") : base(color, duration, key)
+            public WireDiscRequest(Color color, float duration, float rad, Vector3 position, WeakReference? key = null) : base(color, duration, key)
             {
                 _rad = rad;
                 _position = position;
@@ -200,7 +208,7 @@ namespace UnityUtils
             private readonly GUIContent _labelContent;
             private readonly Vector3 _position;
 
-            public LabelRequest(Color color, float duration, string text, Vector3 position, string key = "") : base(color, duration, key)
+            public LabelRequest(Color color, float duration, string text, Vector3 position, WeakReference? key = null) : base(color, duration, key)
             {
                 _labelContent = new (text);
                 _position = position;
@@ -225,7 +233,7 @@ namespace UnityUtils
             private readonly float _maxOffsetFromCenter;
             private readonly Vector3 _position;
 
-            public DynamicLabelRequest(Color color, float duration, string text, Vector3 position, float maxOffsetFromCenter = 1, string key = "") : base(color, duration, key)
+            public DynamicLabelRequest(Color color, float duration, string text, Vector3 position, float maxOffsetFromCenter = 1, WeakReference? key = null) : base(color, duration, key)
             {
                 _position = position;
                 _maxOffsetFromCenter = maxOffsetFromCenter;
