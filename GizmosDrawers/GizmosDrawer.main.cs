@@ -17,6 +17,7 @@ namespace UnityUtils
         static GizmosDrawer()
         {
             Requests.Clear();
+            KeyStacks.Clear();
             CreateRunnerIfNotExist();
         }
 
