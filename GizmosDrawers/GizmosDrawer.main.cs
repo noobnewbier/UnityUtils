@@ -49,10 +49,11 @@ namespace UnityUtils
              * Unity doesn't run gizmos drawing if the object itself is hidden.
              * So no, no hide flags.
              */
-            var newRunner = new GameObject("EditorHelper").AddComponent<Runner>();
-            newRunner.hideFlags = HideFlags.DontSave;
+            var helperObject = new GameObject("EditorHelper"); 
+            helperObject.AddComponent<Runner>();
+            helperObject.hideFlags = HideFlags.DontSave;
 
-            if (Application.isPlaying) Object.DontDestroyOnLoad(newRunner.gameObject);
+            if (Application.isPlaying) Object.DontDestroyOnLoad(helperObject);
         }
 
         private static void Request(DrawRequest request)
