@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace UnityUtils.Editor
 {
     public partial class NonebGUIDrawer
     {
         private readonly Dictionary<string, bool> _foldoutStates = new ();
+        private readonly Dictionary<string, int> _toolbarStates = new ();
 
         public NonebGUIDrawer(SerializedObject serializedObject)
         {
@@ -147,7 +151,8 @@ namespace UnityUtils.Editor
             var style = EditorStyles.foldoutHeader;
             var rect = GetIndentedRect(label, style);
             var headerRect = new Rect(rect.x, rect.y, rect.width - arraySizeWidth, defaultFoldoutHeaderHeight);
-            var sizeRect = new Rect(
+            var sizeRect = new Rect
+            (
                 headerRect.xMax - Indent * EditorGUI.indentLevel,
                 headerRect.y,
                 arraySizeWidth + Indent * EditorGUI.indentLevel,
@@ -163,5 +168,36 @@ namespace UnityUtils.Editor
         }
 
         public bool DrawToggle(string label, bool value) => EditorGUILayout.Toggle(label, value);
+
+        public void DrawToolbar(params (string tabName, Action drawTabFunc)[] tabs)
+        {
+            if (tabs.Length == 0)
+            {
+                return;
+            }
+
+            var id = string.Join("_", tabs.Select(t => t.tabName));
+            DrawToolbar(id, tabs);
+        }
+
+        public void DrawToolbar(string id, params (string tabName, Action drawTabFunc)[] tabs)
+        {
+            if (tabs.Length == 0) return;
+            
+            if (!_toolbarStates.TryGetValue(id, out var currSelectedIndex))
+            {
+                _toolbarStates[id] = currSelectedIndex = 0;
+            }
+            
+            // in case the tabs length changed we want to make sure it remains in the valid range of values.
+            currSelectedIndex = Mathf.Clamp(currSelectedIndex, 0, tabs.Length - 1);
+
+            var tabNames = tabs.Select(t => t.tabName).ToArray();
+            var newSelectedIndex = GUILayout.Toolbar(currSelectedIndex, tabNames);
+            var newSelectedTab = tabs[newSelectedIndex];
+            
+            newSelectedTab.drawTabFunc.Invoke();
+            _toolbarStates[id] = newSelectedIndex;
+        }
     }
 }
