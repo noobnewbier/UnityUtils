@@ -7,20 +7,41 @@ namespace UnityUtils
 {
     public partial class GizmosDrawer
     {
-        private abstract class DrawRequest
+        internal abstract class DrawRequest
         {
             public readonly WeakReference? DurationKey;
-            
+
             protected readonly Color Color;
 
-            protected DrawRequest(Color color, float duration, WeakReference? key)
+            protected DrawRequest(Color color, float duration, WeakReference? key = null, string requestCategory = DefaultCategory)
             {
+                /*
+                 * Note:
+                 * Yes, it's more elegant if we do a factory pattern like a good old OOP sanitarians.
+                 * But we are not, and I am lazy when there's not style cop looking over me,
+                 * so here we go.
+                 */
+                // Automatically assigning a key if not otherwise specified.
+                if (key == null)
+                {
+                    KeyStacks.TryPeek(out key);
+                    key ??= null;
+                }
+
+                if (requestCategory == DefaultCategory)
+                {
+                    CategoryStacks.TryPeek(out requestCategory);
+                    requestCategory ??= DefaultCategory;
+                }
+                
                 Color = color;
                 Duration = duration;
+                RequestCategory = requestCategory;
                 DurationKey = key;
             }
 
             public float Duration { get; }
+            public string RequestCategory { get; }
             public float Timer { get; set; }
             public bool IsExpired
             {
@@ -33,16 +54,17 @@ namespace UnityUtils
                         {
                             return true;
                         }
-                        
+
                         if (DurationKey.Target is UnityEngine.Object uObj)
                         {
                             // in case of unity's object, it's also expired if it's destroyed.
                             return uObj == null;
                         }
-                        
+
                         // special case, duration is -1 means we are relying on key for their life time.
                         return false;
                     }
+
                     return Timer > Duration;
                 }
             }

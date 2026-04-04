@@ -11,13 +11,19 @@ namespace UnityUtils
     [InitializeOnLoad]
     public partial class GizmosDrawer
     {
-        private static readonly HashSet<DrawRequest> Requests = new ();
+        internal static readonly HashSet<DrawRequest> Requests = new ();
         private static readonly Stack<WeakReference> KeyStacks = new ();
+        private static readonly Stack<string> CategoryStacks = new ();
+        private const string DefaultCategory= "$Default";
+        
+        internal static readonly HashSet<string> FilteredCategories = new();
 
         static GizmosDrawer()
         {
             Requests.Clear();
             KeyStacks.Clear();
+            FilteredCategories.Clear();
+            
             CreateRunnerIfNotExist();
         }
 
@@ -89,7 +95,15 @@ namespace UnityUtils
 
             private void OnDrawGizmos()
             {
-                foreach (var request in Requests) request.Draw();
+                foreach (var request in Requests)
+                {
+                    if (FilteredCategories.Contains(request.RequestCategory))
+                    {
+                        continue;
+                    }
+                    
+                    request.Draw();
+                }
             }
         }
     }
