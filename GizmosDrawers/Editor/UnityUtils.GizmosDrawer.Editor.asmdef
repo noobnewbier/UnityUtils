@@ -1,0 +1,19 @@
+{
+    "name": "UnityUtils.GizmosDrawer.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:22f72075764e7f3429d2e98109cc90bc",
+        "GUID:64b3096235e74f2a93f39cbf9edebfb3"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
