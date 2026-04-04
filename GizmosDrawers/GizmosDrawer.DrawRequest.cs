@@ -9,8 +9,17 @@ namespace UnityUtils
     {
         internal abstract class DrawRequest
         {
+            /// <summary>
+            /// There's an issue where when we are trying to draw gizmos with label, there's no fucking way for me to control the draw order such that label comes first.
+            /// Or to be precise, nothing seems to affect the draw order between gizmos and handles, handles seems to always comes last if they are triggered in on draw gizmos.
+            /// There's a Handle.DrawGizmos which might do the job but the way the function is named makes me feel like it triggers a redraw which is perf issue when we have enough gizmos.
+            ///
+            /// So as a workaround, we just tone down the alpha so shit is still readable even if they are partially covered by the gizmos. 
+            /// Works nice enough so I don't waste any more time on this.
+            /// </summary>
+            private const float AlphaMultiplier = 0.5f;
+            
             public readonly WeakReference? DurationKey;
-
             protected readonly Color Color;
 
             protected DrawRequest(Color color, float duration, WeakReference? key = null, string requestCategory = DefaultCategory)
@@ -33,8 +42,10 @@ namespace UnityUtils
                     CategoryStacks.TryPeek(out requestCategory);
                     requestCategory ??= DefaultCategory;
                 }
-                
+
                 Color = color;
+                Color.a *= AlphaMultiplier;
+                
                 Duration = duration;
                 RequestCategory = requestCategory;
                 DurationKey = key;
@@ -43,6 +54,7 @@ namespace UnityUtils
             public float Duration { get; }
             public string RequestCategory { get; }
             public float Timer { get; set; }
+
             public bool IsExpired
             {
                 get
