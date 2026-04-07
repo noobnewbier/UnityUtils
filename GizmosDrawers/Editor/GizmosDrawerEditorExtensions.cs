@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine.Pool;
 using UnityUtils.Editor;
 
@@ -55,7 +56,7 @@ namespace UnityUtils.GizmosDrawers.Editor
                     {
                         foreach (var category in allCategories)
                         {
-                            var prevIsFiltered = GizmosDrawer.FilteredCategories.Contains(category);
+                            var prevIsFiltered = GizmosDrawer.Preferences.instance.FilteredCategories.Contains(category);
                             var prevIsVisible = !prevIsFiltered;
                             
                             var isUserWantVisible = drawer.DrawToggle(category, prevIsVisible);
@@ -68,11 +69,11 @@ namespace UnityUtils.GizmosDrawers.Editor
                             
                             if (newIsFiltered)
                             {
-                                GizmosDrawer.FilteredCategories.Add(category);
+                                GizmosDrawer.Preferences.instance.SetFilter(category, true);
                             }
                             else
                             {
-                                GizmosDrawer.FilteredCategories.Remove(category);
+                                GizmosDrawer.Preferences.instance.SetFilter(category, false);
                             }
                         }
                     }

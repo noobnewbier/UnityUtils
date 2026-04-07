@@ -16,13 +16,10 @@ namespace UnityUtils
         private static readonly Stack<string> CategoryStacks = new ();
         private const string DefaultCategory= "$Default";
         
-        internal static readonly HashSet<string> FilteredCategories = new();
-
         static GizmosDrawer()
         {
             Requests.Clear();
             KeyStacks.Clear();
-            FilteredCategories.Clear();
             
             CreateRunnerIfNotExist();
         }
@@ -97,7 +94,7 @@ namespace UnityUtils
             {
                 foreach (var request in Requests)
                 {
-                    if (FilteredCategories.Contains(request.RequestCategory))
+                    if (Preferences.instance.FilteredCategories.Contains(request.RequestCategory))
                     {
                         continue;
                     }

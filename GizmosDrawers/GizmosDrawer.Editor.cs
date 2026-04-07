@@ -1,5 +1,6 @@
-using System;
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
 #if UNITY_EDITOR
 namespace UnityUtils
@@ -9,28 +10,56 @@ namespace UnityUtils
     /// </summary>
     public partial class GizmosDrawer
     {
-        internal static void ClearRequests()
+        internal static void DismissAll()
         {
             Requests.Clear();
         }
-
+        
         internal static void ShowAll()
         {
-            FilteredCategories.Clear();
+            foreach (var filter in Preferences.instance.FilteredCategories)
+            {
+                Preferences.instance.SetFilter(filter, false);
+            }
         }
 
         internal static void HideAll()
         {
-            FilteredCategories.Clear();
             foreach (var request in Requests)
             {
-                FilteredCategories.Add(request.RequestCategory);
+                Preferences.instance.SetFilter(request.RequestCategory, true);
             }
         }
 
-        internal static void DismissAll()
+        [FilePath("NonebNi/GizmosDrawer.Preferences.asset", FilePathAttribute.Location.PreferencesFolder)]
+        internal class Preferences : ScriptableSingleton<Preferences>
         {
-            Requests.Clear();
+            [SerializeField] private List<string> filteredCategories = new ();
+
+            internal IEnumerable<string> FilteredCategories => filteredCategories;
+
+            internal void SetFilter(string filterString, bool isFilter)
+            {
+                var isDirty = false;
+                if (isFilter)
+                {
+                    if (!filteredCategories.Contains(filterString))
+                    {
+                        filteredCategories.Add(filterString);
+                        isDirty = true;
+                    }
+                }
+                else
+                {
+                    isDirty = filteredCategories.Remove(filterString);
+                }
+
+                if (isDirty)
+                {
+                    EditorUtility.SetDirty(this);
+                    Save(true);
+                }
+            }
         }
     }
 }
