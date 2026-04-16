@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using UnityEngine.Pool;
 using UnityUtils.Editor;
@@ -50,18 +51,18 @@ namespace UnityUtils.GizmosDrawers.Editor
                     }
                 }
 
-                using (drawer.FlowLayoutScope())
+                using (drawer.BoxScope("Visible Categories"))
                 {
-                    using (drawer.BoxScope("Visible Categories"))
+                    using (drawer.FlowLayoutScope())
                     {
                         foreach (var category in allCategories)
                         {
                             var prevIsFiltered = GizmosDrawerPreferences.instance.FilteredCategories.Contains(category);
                             var prevIsVisible = !prevIsFiltered;
-                            
+
                             var isUserWantVisible = drawer.DrawToggle(category, prevIsVisible);
                             var newIsFiltered = !isUserWantVisible;
-                            
+
                             if (newIsFiltered == prevIsFiltered)
                             {
                                 continue;
