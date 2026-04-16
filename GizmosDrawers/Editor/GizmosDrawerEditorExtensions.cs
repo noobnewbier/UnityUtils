@@ -64,7 +64,7 @@ namespace UnityUtils.GizmosDrawers.Editor
                             
                             if (newIsFiltered == prevIsFiltered)
                             {
-                                return;
+                                continue;
                             }
 
                             GizmosDrawerPreferences.instance.SetFilter(category, newIsFiltered);
