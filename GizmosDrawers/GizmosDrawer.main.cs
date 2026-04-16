@@ -98,6 +98,11 @@ namespace UnityUtils
                     {
                         continue;
                     }
+
+                    if (!GizmosDrawerPreferences.instance.IsDrawLabel && request is LabelRequest or DynamicLabelRequest)
+                    {
+                        continue;
+                    }
                     
                     request.Draw();
                 }

@@ -69,6 +69,8 @@ namespace UnityUtils.GizmosDrawers.Editor
 
                             GizmosDrawerPreferences.instance.SetFilter(category, newIsFiltered);
                         }
+                        
+                        GizmosDrawerPreferences.instance.IsDrawLabel = drawer.DrawToggle("Draw Label", GizmosDrawerPreferences.instance.IsDrawLabel);
                     }
                 }
             }
