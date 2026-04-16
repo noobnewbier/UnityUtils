@@ -56,7 +56,7 @@ namespace UnityUtils.GizmosDrawers.Editor
                     {
                         foreach (var category in allCategories)
                         {
-                            var prevIsFiltered = GizmosDrawer.Preferences.instance.FilteredCategories.Contains(category);
+                            var prevIsFiltered = GizmosDrawerPreferences.instance.FilteredCategories.Contains(category);
                             var prevIsVisible = !prevIsFiltered;
                             
                             var isUserWantVisible = drawer.DrawToggle(category, prevIsVisible);
@@ -66,15 +66,8 @@ namespace UnityUtils.GizmosDrawers.Editor
                             {
                                 return;
                             }
-                            
-                            if (newIsFiltered)
-                            {
-                                GizmosDrawer.Preferences.instance.SetFilter(category, true);
-                            }
-                            else
-                            {
-                                GizmosDrawer.Preferences.instance.SetFilter(category, false);
-                            }
+
+                            GizmosDrawerPreferences.instance.SetFilter(category, newIsFiltered);
                         }
                     }
                 }

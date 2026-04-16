@@ -94,7 +94,7 @@ namespace UnityUtils
             {
                 foreach (var request in Requests)
                 {
-                    if (Preferences.instance.FilteredCategories.Contains(request.RequestCategory))
+                    if (GizmosDrawerPreferences.instance.FilteredCategories.Contains(request.RequestCategory))
                     {
                         continue;
                     }

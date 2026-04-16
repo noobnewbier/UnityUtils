@@ -5,6 +5,8 @@ using UnityEngine;
 #if UNITY_EDITOR
 namespace UnityUtils
 {
+    //todo: why is it not saving prefs
+    //todo: accent grass thinking.
     /// <summary>
     /// Stuffs that mostly exist for editor purposes
     /// </summary>
@@ -17,9 +19,9 @@ namespace UnityUtils
         
         internal static void ShowAll()
         {
-            foreach (var filter in Preferences.instance.FilteredCategories)
+            foreach (var filter in GizmosDrawerPreferences.instance.FilteredCategories)
             {
-                Preferences.instance.SetFilter(filter, false);
+                GizmosDrawerPreferences.instance.SetFilter(filter, false);
             }
         }
 
@@ -27,38 +29,7 @@ namespace UnityUtils
         {
             foreach (var request in Requests)
             {
-                Preferences.instance.SetFilter(request.RequestCategory, true);
-            }
-        }
-
-        [FilePath("NonebNi/GizmosDrawer.Preferences.asset", FilePathAttribute.Location.PreferencesFolder)]
-        internal class Preferences : ScriptableSingleton<Preferences>
-        {
-            [SerializeField] private List<string> filteredCategories = new ();
-
-            internal IEnumerable<string> FilteredCategories => filteredCategories;
-
-            internal void SetFilter(string filterString, bool isFilter)
-            {
-                var isDirty = false;
-                if (isFilter)
-                {
-                    if (!filteredCategories.Contains(filterString))
-                    {
-                        filteredCategories.Add(filterString);
-                        isDirty = true;
-                    }
-                }
-                else
-                {
-                    isDirty = filteredCategories.Remove(filterString);
-                }
-
-                if (isDirty)
-                {
-                    EditorUtility.SetDirty(this);
-                    Save(true);
-                }
+                GizmosDrawerPreferences.instance.SetFilter(request.RequestCategory, true);
             }
         }
     }
