@@ -1,0 +1,17 @@
+{
+    "name": "UnityUtils.ValueTracker",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b46779583a009f04ba9f5f31d0e7e6ac",
+        "GUID:43b111c4a445f446abd2c02e77750ff5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

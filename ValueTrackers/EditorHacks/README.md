@@ -1,0 +1,4 @@
+﻿- This worked in Unity 6000.3,13f1
+- Essentially we needed access to Unity.Profiling.Editor - which is within UnityEditor.CoreModule.dll
+- Unity exposes their internal stuffs to plugin through assembly info, and they split it in a bunch of [internal API bridge](https://github.com/Unity-Technologies/UnityCsReference/blob/b74c77b3efb29caae156d4639ee79e8302228448/Runtime/Export/AssemblyInfo.cs#L233).
+- So we just hijack it and pretend we are one of them through asmref. What an annoying way to do things.
