@@ -10,7 +10,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawBound(Bounds bounds, float duration = 0f, string label = "")
         {
-            DrawBound(bounds, Color.red, duration, label);
+            DrawBound(bounds, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -51,7 +51,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawLine(Vector3 from, Vector3 to, float duration = 0f, string label = "")
         {
-            DrawLine(from, to, Color.red, duration, label);
+            DrawLine(from, to, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -66,7 +66,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawLine(Vector3[] points, float duration = 0f, string label = "")
         {
-            DrawLine(points, Color.red, duration, label);
+            DrawLine(points, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -89,7 +89,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireSphere(Vector3 center, float radius, float duration = 0f, string label = "")
         {
-            DrawWireSphere(center, radius, Color.red, duration, label);
+            DrawWireSphere(center, radius, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -103,7 +103,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawSphere(Vector3 center, float radius = 0.25f, float duration = 0f, string label = "")
         {
-            DrawSphere(center, Color.red, radius, duration, label);
+            DrawSphere(center, Gizmos.color, radius, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -117,7 +117,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireCube(Vector3 center, Vector3 size, float duration = 0f, string label = "")
         {
-            DrawWireCube(center, size, Color.red, duration, label);
+            DrawWireCube(center, size, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -131,7 +131,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawCube(Vector3 center, Vector3 size, float duration = 0f, string label = "")
         {
-            DrawCube(center, size, Color.red, duration, label);
+            DrawCube(center, size, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -145,7 +145,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawRay(Vector3 from, Vector3 direction, float length = 2.5f, float duration = 0f, string label = "")
         {
-            DrawRay(from, direction, Color.red, length);
+            DrawRay(from, direction, Gizmos.color, length);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -160,7 +160,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, float duration = 0f, string label = "")
         {
-            DrawMesh(mesh, position, rotation, scale, Color.red, duration, label);
+            DrawMesh(mesh, position, rotation, scale, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -174,7 +174,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawMesh(Mesh mesh, Vector3 position, float duration = 0f, string label = "")
         {
-            DrawMesh(mesh, position, Color.red, duration, label);
+            DrawMesh(mesh, position, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -188,7 +188,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, float duration = 0f, string label = "")
         {
-            DrawWireMesh(mesh, position, rotation, scale, Color.red, duration, label);
+            DrawWireMesh(mesh, position, rotation, scale, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -202,7 +202,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireMesh(Mesh mesh, Vector3 position, float duration = 0f, string label = "")
         {
-            DrawWireMesh(mesh, position, Color.red, duration, label);
+            DrawWireMesh(mesh, position, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -216,7 +216,7 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireMesh(Mesh mesh, float duration = 0f, string label = "")
         {
-            DrawWireMesh(mesh, Color.red, duration, label);
+            DrawWireMesh(mesh, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -230,13 +230,19 @@ namespace UnityUtils
         [Conditional("UNITY_EDITOR")]
         public static void DrawRay(Ray r, float duration = 0f, string label = "")
         {
-            DrawRay(r, Color.red, duration, label);
+            DrawRay(r, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
         public static void DrawRay(Ray r, Color color, float duration = 0f, string label = "")
         {
             DrawRay(r.origin, r.direction, color);
+        }
+        
+        [Conditional("UNITY_EDITOR")]
+        public static void DrawWireDisc(float rad, Vector3 position, float duration = 0f, string label = "")
+        {
+            DrawWireDisc(rad, position, Gizmos.color, duration, label);
         }
 
         [Conditional("UNITY_EDITOR")]
