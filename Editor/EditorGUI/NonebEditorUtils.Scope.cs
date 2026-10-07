@@ -88,13 +88,16 @@ namespace UnityUtils.Editor
 
         public class GizmosColorScope : IDisposable
         {
-            private readonly Color _cacheColor;
+            private readonly Color _cacheGizmosColor;
+            private readonly Color _cacheHandleColor;
             private bool _disposed;
 
             public GizmosColorScope(Color color)
             {
-                _cacheColor = Gizmos.color;
+                _cacheGizmosColor = Gizmos.color;
+                _cacheHandleColor = Handles.color;
                 Gizmos.color = color;
+                Handles.color = color;
             }
 
             public void Dispose()
@@ -116,7 +119,8 @@ namespace UnityUtils.Editor
 
             private void CloseScope()
             {
-                Gizmos.color = _cacheColor;
+                Gizmos.color = _cacheGizmosColor;
+                Handles.color = _cacheHandleColor;
             }
 
             ~GizmosColorScope()
