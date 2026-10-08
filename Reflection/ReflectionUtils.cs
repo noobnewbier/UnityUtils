@@ -241,7 +241,7 @@ namespace UnityUtils
                      * in a nutshell we are trying to cut down the number of types we are chowing through for performance
                      * It might be better if we can have a way to walk "upwards" in the type hierarchy when doing the type analysis...?
                      */
-                    .Where(a => a.FullName.Contains("Unity") || a.FullName.Contains("Noneb"))
+                    .Where(a => a.FullName.Contains("Unity") || a.FullName.Contains("Noneb") || a.FullName.Contains(Application.productName))
                     .SelectMany(assembly => assembly.GetTypes())
                     .ToArray();
             }
