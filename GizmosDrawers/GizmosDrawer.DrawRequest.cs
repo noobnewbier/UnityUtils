@@ -207,11 +207,13 @@ namespace UnityUtils
         {
             private readonly Vector3 _position;
             private readonly float _rad;
+            private readonly Vector3 _upVector;
 
-            public WireDiscRequest(Color color, float duration, float rad, Vector3 position, WeakReference? key = null) : base(color, duration, key)
+            public WireDiscRequest(Color color, float duration, float rad, Vector3 position, Vector3 upVector, WeakReference? key = null) : base(color, duration, key)
             {
                 _rad = rad;
                 _position = position;
+                _upVector = upVector;
             }
 
             protected override void OnDraw()
@@ -222,13 +224,14 @@ namespace UnityUtils
                 var theta = 0f;
                 var x = _rad * Mathf.Cos(theta);
                 var y = _rad * Mathf.Sin(theta);
-                var pos = _position + new Vector3(x, 0, y);
+                var rot = Quaternion.FromToRotation(Vector3.up, _upVector);
+                var pos = _position + rot * new Vector3(x, 0, y);
                 var lastPos = pos;
                 for (theta = 0.1f; theta < Mathf.PI * 2; theta += thetaDelta)
                 {
                     x = _rad * Mathf.Cos(theta);
                     y = _rad * Mathf.Sin(theta);
-                    var newPos = _position + new Vector3(x, 0, y);
+                    var newPos = _position + rot * new Vector3(x, 0, y);
                     Gizmos.DrawLine(pos, newPos);
                     pos = newPos;
                 }

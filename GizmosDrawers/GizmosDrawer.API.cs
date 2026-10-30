@@ -244,11 +244,23 @@ namespace UnityUtils
         {
             DrawWireDisc(rad, position, Gizmos.color, duration, label);
         }
-
+        
+        [Conditional("UNITY_EDITOR")]
+        public static void DrawWireDisc(float rad, Vector3 position, Vector3 upVector, float duration = 0f, string label = "")
+        {
+            DrawWireDisc(rad, position, upVector, Gizmos.color, duration, label);
+        }
+        
         [Conditional("UNITY_EDITOR")]
         public static void DrawWireDisc(float rad, Vector3 position, Color color, float duration = 0f, string label = "")
         {
-            var request = new WireDiscRequest(color, duration, rad, position);
+            DrawWireDisc(rad, position, Vector3.up, color, duration, label);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        public static void DrawWireDisc(float rad, Vector3 position, Vector3 upVector, Color color, float duration = 0f, string label = "")
+        {
+            var request = new WireDiscRequest(color, duration, rad, position, upVector);
             Request(request);
             DrawLabel(position, label, color, duration);
         }

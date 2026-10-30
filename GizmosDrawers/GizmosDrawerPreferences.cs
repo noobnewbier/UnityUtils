@@ -14,7 +14,7 @@ namespace UnityUtils
     internal class GizmosDrawerPreferences : ScriptableSingleton<GizmosDrawerPreferences>
     {
         [SerializeField] private List<string> filteredCategories = new ();
-        [SerializeField] private bool isDrawLabel;
+        [SerializeField] private bool isDrawLabel = true;
 
          public bool IsDrawLabel
          {
