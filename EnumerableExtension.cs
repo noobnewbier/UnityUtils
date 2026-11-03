@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace UnityUtils
@@ -20,14 +21,24 @@ namespace UnityUtils
         }
 
         //reference : https://stackoverflow.com/questions/3188693/how-can-i-get-linq-to-return-the-object-which-has-the-max-value-for-a-given-prop
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
         public static T MaxBy<T, TU>(this IEnumerable<T> data, Func<T, TU> f) where TU : IComparable
         {
+            if (!data.Skip(1).Any())
+            {
+                return data.FirstOrDefault();
+            }
             return data.Aggregate((i1, i2) => f(i1).CompareTo(f(i2)) > 0 ? i1 : i2);
         }
 
         //reference : https://stackoverflow.com/questions/3188693/how-can-i-get-linq-to-return-the-object-which-has-the-max-value-for-a-given-prop
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
         public static T MinBy<T, TU>(this IEnumerable<T> data, Func<T, TU> f) where TU : IComparable
         {
+            if (!data.Skip(1).Any())
+            {
+                return data.FirstOrDefault();
+            }
             return data.Aggregate((i1, i2) => f(i1).CompareTo(f(i2)) < 0 ? i1 : i2);
         }
     }
